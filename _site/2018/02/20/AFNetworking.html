@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html>
+<head><!-- post -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFNetworking 源码分析 - Stay True</title>
+    <meta name="author"  content="Ju Liaoyuan">
+    <meta name="description" content="AFNetworking 源码分析">
+    <meta name="keywords"  content="iOS">
+    <!-- Open Graph -->
+    <meta property="og:title" content="AFNetworking 源码分析 - Stay True">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:4000/2018/02/20/AFNetworking.html">
+    <meta property="og:description" content="iOS 搬砖，业余天文爱好者">
+    <meta property="og:site_name" content="Stay True">
+    <link rel="stylesheet" href="//cdn.staticfile.org/normalize/6.0.0/normalize.min.css">
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_roc50gemkxpw4s4i.css">
+    <link rel="stylesheet" href= "/assets/css/github-markdown.css" | prepend: site.baseurl >
+    <link rel="stylesheet" href="/assets/css/styles/default.css" | prepend: site.baseurl>
+    <link rel="stylesheet" href= "/assets/css/share.min.css"  | prepend: site.baseurl>
+    <link rel="stylesheet" href= "/assets/css/app.min.css" | prepend: site.baseurl >
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/assets/img/favicon.ico">
+</head>
+<body>
+    <!--[if lt IE 10]>
+<div class="alert-danger" role="alert">你的浏览器实在太太太旧了，放学别走，升级完浏览器再说！<a target="_blank" class="alert-link" href="http://browsehappy.com">立即升级</a></div>
+<![endif]-->
+<input id="nm-switch" type="hidden" value="false">
+
+<header class="g-header">
+    <div class="g-logo">
+        <a href="/"></a>
+    </div>
+    <i id="menu-toggle" class="iconfont icon-menu"></i>
+    <nav class="g-nav">
+        <ul>
+            
+            <li><a href="/">home</a></li>
+            
+            <li><a href="/tags.html">tags</a></li>
+            
+        </ul>
+    </nav>
+</header>
+
+<header class="g-banner post-header post-pattern-circuitBoard bgcolor-default " data-theme="default">
+    <div class="post-wrapper">
+        <div class="post-tags">
+             
+            
+            <a href="/tags#iOS" class="post-tag">iOS</a>
+            
+            
+        </div>
+        <h1>AFNetworking 源码分析</h1>
+        <div class="post-meta">
+            <span class="post-meta-item"><i class="iconfont icon-author"></i><a href="http://localhost:4000" target="_blank" rel="author">Ju Liaoyuan</a></></span>
+            <time class="post-meta-item" datetime="18-02-20"><i class="iconfont icon-date"></i>20 Feb 2018</time>
+        </div>
+    </div>
+    
+    <div class="filter"></div>
+    <div class="post-cover" style="background: url('https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/AFNetworking.png') center no-repeat; background-size: cover;">
+    
+</header>
+
+<div class="post-content">
+    
+    <article class="markdown-body">
+        <!--more-->
+
+<h1 id="afnetworking">AFNetworking</h1>
+
+<p>终于有时间，静下心来，认认真真的看一遍<code class="highlighter-rouge">AFNetworking</code>的源码。犹记得一年前，也尝试过去看，结果是一脸懵逼，遂卒。又经过这一年的学习，再次尝试阅读源码，轻松了不少。亦或是找对了方法。</p>
+
+<p>虽然看完了，但是仔细回忆下，又串不起来，所以，写一篇笔记，把<code class="highlighter-rouge">AFNetworking</code>大体的流程和阅读过程中的心得纪录下来。</p>
+
+<h1 id="心得">心得</h1>
+
+<p>先来纪录下阅读源码的技巧，首先，你要对这个库很熟悉，它有什么功能，能干哪些事要有个大体的了解。然后，我单独建了一个项目，加入了<code class="highlighter-rouge">AFNetworking</code>。</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15178977743596.jpg" alt="" /></p>
+
+<p>如果一上来直奔主题，随便挑了一个类，直接开始看，恐怕结局只能<code class="highlighter-rouge">GG</code>。因为里面的东西太多了，没有次序的看，往往是看了半天，连核心代码都没看到。</p>
+
+<ol>
+  <li>首先，我们先看最主要的功能，其余的，都是一些 <code class="highlighter-rouge">corner case</code>。何谓主要功能，一般就是你最常用的功能。</li>
+  <li>
+    <p>理清继承关系，最好能画个脑图，中间遇到没看到的类，先不要急着跳过去，先把当前的函数看完。</p>
+  </li>
+  <li>看看 <code class="highlighter-rouge">corner case</code> 的处理，如果遇到不明白的，多去 <code class="highlighter-rouge">github</code> 的 <code class="highlighter-rouge">issue</code> 里面搜搜看，一个成功的第三方库，绝非朝夕之间，相信每一个 <code class="highlighter-rouge">corner case</code> 都是前人讨论过的坑，而 <code class="highlighter-rouge">issue</code> 就是见证，你能在这看到原始的 <code class="highlighter-rouge">Bug</code> 是什么样，为什么要这样解决，为了解决这个 <code class="highlighter-rouge">Bug</code> 经历了哪些优化和迭代…</li>
+  <li>试着把整个过程再理顺一遍，加强印象。</li>
+  <li>Share It！</li>
+</ol>
+
+<h1 id="开始">开始</h1>
+
+<p>按照上面的步骤，我们来一步步看懂<code class="highlighter-rouge">AFNetworking</code>。</p>
+
+<h2 id="get--post-request">GET &amp; POST Request</h2>
+
+<p>是的，<code class="highlighter-rouge">AFNetworking</code>中，我们最常用的就是发起<code class="highlighter-rouge">GET</code>或者<code class="highlighter-rouge">POST</code>请求，那么，这个无疑就是它的主要功能。形如：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+[manager GET:yourURL parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    // handle success
+} failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+    // handle failure
+}];
+</code></pre></div></div>
+
+<p>OK，让我们带着好奇心，点击这个方法，看看里面到底是怎么实现的。</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15179020925852.jpg" alt="" /></p>
+
+<p>恩，这里调用了另外一个方法，创建了一个<code class="highlighter-rouge">NSURLSessionDataTask</code>类的实例，并且调用了<code class="highlighter-rouge">- resume</code>开始任务。</p>
+
+<p>看到这里，我们已经能够知道，<code class="highlighter-rouge">AFNetworking</code>是对<code class="highlighter-rouge">NSURLSession</code>的封装(3.0版本)，那么，如果我们这里，如果对<code class="highlighter-rouge">NSURLSeesion</code>很陌生，恐怕很难再进行下去。所以，我们要<a href="https://imliaoyuan.com/2018/02/12/NSURLSession.html">补一补 NSURLSession</a> 的知识。</p>
+
+<p>让我们继续看下去，看看<code class="highlighter-rouge">dataTaskWithHTTPMethod...</code>这个方法的实现：</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15180744175086.jpg" alt="" /></p>
+
+<p>先是构造了一个<code class="highlighter-rouge">Request</code>。</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15180744986024.jpg" alt="" /></p>
+
+<p>然后是构造了一个<code class="highlighter-rouge">Task</code>，并把这个<code class="highlighter-rouge">Task</code>返回给调用者。</p>
+
+<p>恩，和我们了解到的，使用<code class="highlighter-rouge">NSURLSeesion</code>流程是一样的。</p>
+
+<p>接下来，我们看看他是怎么去构造<code class="highlighter-rouge">Request</code>和<code class="highlighter-rouge">Task</code>的。</p>
+
+<h3 id="request-的构造">Request 的构造</h3>
+<p>先用<code class="highlighter-rouge">URL</code>初始化了一个<code class="highlighter-rouge">Request</code>，并且设置了<code class="highlighter-rouge">HTTPMethod</code>。
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15180752932916.jpg" alt="" /></p>
+
+<p>重点看下<code class="highlighter-rouge">AFHTTPRequestSerializerObservedKeyPaths</code>这个函数：
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15180754147432.jpg" alt="" />
+这个静态函数，把<code class="highlighter-rouge">NSURLRequest</code>的一些属性，以字符串的形式，放在了数组中。</p>
+
+<p>对于这些<code class="highlighter-rouge">NSURLRequest</code>的属性，<code class="highlighter-rouge">AFNetworking</code>在<code class="highlighter-rouge">AFHTTPRequestSerializer</code>类中一一做了映射。由于我们在一开始的示例中没有做额外的设置，所以在<code class="highlighter-rouge">for-in</code>遍历中，<code class="highlighter-rouge">mutableObservedChangedKeyPaths</code>这个集合是空的，也就是用的<code class="highlighter-rouge">NSURLRequest</code>默认值。</p>
+
+<p>继续向下看，<code class="highlighter-rouge">requestBySerializingRequest:withParameters:error</code>方法的实现。</p>
+
+<p>到这里，我们首先要明白，一个<code class="highlighter-rouge">HTTP Request</code>组成。一个完整的<code class="highlighter-rouge">HTTP Request</code>是由<code class="highlighter-rouge">请求方法</code>、<code class="highlighter-rouge">请求URI</code>、<code class="highlighter-rouge">协议版本</code>、<code class="highlighter-rouge">请求首部字段</code>、<code class="highlighter-rouge">内容实体</code>组成，简单来说，就是<code class="highlighter-rouge">请求行</code>、<code class="highlighter-rouge">请求头</code>、<code class="highlighter-rouge">请求体</code>。</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15181481189791.jpg" alt="" /></p>
+
+<p>请求行不需要额外的去设置。先来看下请求头。</p>
+<h4 id="设置请求头">设置请求头</h4>
+<p>在<code class="highlighter-rouge">requestBySerializingRequest:withParameters:error</code>方法中，上来就是设置请求头。</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15180782719131.jpg" alt="" />
+<code class="highlighter-rouge">HTTPRequestHeaders</code>是<code class="highlighter-rouge">mutableHTTPRequestHeaders</code>的<code class="highlighter-rouge">copy</code>，是一个字典。里面装的是请求头的信息。
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15180784454439.jpg" alt="" />
+同样以上面的示例为参考，我们并没有设置请求头，但是，如果我们用抓包工具(Charles)或者<a href="https://request.worktile.com">Worktile Request</a>看一下请求：
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15180799899260.jpg" alt="" />
+其中，最上面的一行，叫做<code class="highlighter-rouge">请求行</code>，下面的是<code class="highlighter-rouge">请求头</code>。这里面的首部字段，有<code class="highlighter-rouge">NSURLSession</code>自动设置的，也有<code class="highlighter-rouge">AFNetworking</code>设置的。如<code class="highlighter-rouge">User-Agent</code>，<code class="highlighter-rouge">Accept-Language</code>。</p>
+
+<p>看到这里，我们可能会疑惑，这上面的<code class="highlighter-rouge">User-Agent</code>、<code class="highlighter-rouge">Accept-Language</code>是怎么来的？这是因为，我们在初始化<code class="highlighter-rouge">[AFHTTPSessionManager manager]</code>的时候，<code class="highlighter-rouge">AFHTTPSessionManager</code>默认使用是<code class="highlighter-rouge">AFHTTPRequestSerializer</code>，这是一个请求的序列化。正是由这个<code class="highlighter-rouge">AFHTTPRequestSerializer</code>完成请求头的设置。<code class="highlighter-rouge">AFHTTPRequestSerializer</code>又有两个子类，每个子类无非是针对不同的类型设置不同的<code class="highlighter-rouge">Content-Type</code>及参数的数据格式。稍候再介绍。</p>
+
+<p>在<code class="highlighter-rouge">AFHTTPRequestSerializer</code>的初始化方法中，首先对<code class="highlighter-rouge">Accept-Language</code>做了设置：
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15180801457781.jpg" alt="" />
+上面已经有了注释，前面是支持的字符语言，后面<code class="highlighter-rouge">q=1</code>是权重，范围<code class="highlighter-rouge">0-1</code>
+，如果做了国际化，服务器端会根据这个权重来返回对应语言的数据。多个字符集之间，用<code class="highlighter-rouge">，</code>号分割。这里<code class="highlighter-rouge">AFNetworking</code>设置的权重到<code class="highlighter-rouge">0.5</code>便结束了。然后，把他们放在了<code class="highlighter-rouge">mutableHTTPRequestHeaders</code>字典中。</p>
+
+<p>之后，根据设备类型，分情况设置<code class="highlighter-rouge">User-Agent</code>：
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15180804562172.jpg" alt="" />
+(只列出了<code class="highlighter-rouge">iOS</code>端的)。</p>
+
+<p>这段代码，就是我们上面看到的<code class="highlighter-rouge">AFLearn/1.0 (iPhone; iOS 11.0; Scale/3.00)</code>这个字段，都是字符串的拼接，不再过多赘述。</p>
+
+<p>字符串拼接完成后，会有一段对他们的编码的处理：
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15196979409692.jpg" alt="" /></p>
+
+<p>这段代码就是将各种非英文字符串转化为英文。对于这部分，你可以看看<a href="http://nshipster.com/cfstringtransform/">作者的解释</a>，亦或看下<a href="https://imliaoyuan.com/2018/01/01/CFStringTransform-%E5%AD%97%E7%AC%A6%E8%BD%AC%E6%8D%A2.html">我的总结</a></p>
+
+<p>默认的请求头到这里就结束了，如果你要额外的设置请求头，用下面的方法：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[manager.requestSerializer setValue:value forHTTPHeaderField:field];
+</code></pre></div></div>
+
+<p>如果你对<code class="highlighter-rouge">HTTP</code>也不太熟悉，对各种<code class="highlighter-rouge">首部字段</code>没有仔细了解，那么强烈推荐你看下《图解 HTTP》这本书，内容不多，也不深入，非常适合了解 HTTP。我这里也做了一个笔记，你也可以先大概了解下：<a href="https://imliaoyuan.com/2018/01/11/noteforhttp.html">读《图解 HTTP》笔记</a></p>
+
+<p>言归正传，请求头的设置到这里就结束了，我们继续看下请求体部分。</p>
+
+<h4 id="设置请求体">设置请求体</h4>
+
+<p>请求体要分两种情况，对于<code class="highlighter-rouge">GET</code>请求，是直接拼接在<code class="highlighter-rouge">URL</code>后面的，而对于<code class="highlighter-rouge">POST</code>请求，是放在请求体中的。</p>
+
+<p>首先会判断用户是否要使用自定义的参数拼接，通过回调<code class="highlighter-rouge">AFQueryStringSerializationBlock</code>来实现。如果用户没有要自定义的话，就按照默认的来：
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15180832856973.jpg" alt="" />
+这一段有点长，我们一个一个来看。</p>
+
+<p>首先，这么大一段的作用，是将我们传的参数以<code class="highlighter-rouge">key=value</code>的形式，用<code class="highlighter-rouge">URL Encode</code>编码，拼接成字符串。</p>
+
+<p>形如：<code class="highlighter-rouge">area=ShangHai&amp;name=leo</code>。</p>
+
+<p><strong>1. AFQueryStringFromParameters</strong></p>
+
+<p>这个方法，是遍历数组中的<code class="highlighter-rouge">AFQueryStringPair</code>，然后以<code class="highlighter-rouge">&amp;</code>符号拼接。<code class="highlighter-rouge">AFQueryStringPair</code>是一个数据处理类，只有两个属性:<code class="highlighter-rouge">field</code>和<code class="highlighter-rouge">value</code>；一个方法：<code class="highlighter-rouge">-URLEncodedStringValue</code>。它的作用就是上面我们说的，以<code class="highlighter-rouge">key=value</code>的形式，用<code class="highlighter-rouge">URL Encode</code>编码，拼接成字符串。</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15180840831471.jpg" alt="" /></p>
+
+<p>这里面的<code class="highlighter-rouge">AFPercentEscapedStringFromString</code>是实现的一个<code class="highlighter-rouge">URL Encode</code>，感兴趣的可以自己看下。</p>
+
+<p><strong>2. AFQueryStringPairsFromDictionary</strong></p>
+
+<p>这个方法只是一个便利方法，直接调用的是下面的<code class="highlighter-rouge">AFQueryStringPairsFromKeyAndValue</code>，</p>
+
+<p><strong>3. AFQueryStringPairsFromKeyAndValue</strong></p>
+
+<p>这里使用了递归，来处理当参数是<code class="highlighter-rouge">NSDictionary</code>、<code class="highlighter-rouge">NSArray</code>、<code class="highlighter-rouge">NSSet</code>类型情况下的参数拼接问题。这里有个争议，就是关于参数是嵌套类型下，作者的拼接方式。你可以看下相关 issue：</p>
+
+<ul>
+  <li><a href="https://github.com/AFNetworking/AFNetworking/issues/437">issue 1</a></li>
+  <li><a href="https://github.com/AFNetworking/AFNetworking/issues/783">issue 2</a></li>
+</ul>
+
+<p>我们平时传参，一般都是以<code class="highlighter-rouge">key-value</code>形式，这里的<code class="highlighter-rouge">key</code>和<code class="highlighter-rouge">value</code>都是字符串。如果<code class="highlighter-rouge">value</code>也是一个集合类型，就会有分歧，作者的做法是<code class="highlighter-rouge">key[key1] = value</code>这样拼接的，那么，可能服务器就无法解析了。如果遇到这种问题，解决方法也很简单，就是使用<code class="highlighter-rouge">JSON</code>字符串来传参。</p>
+
+<p>这里还对<code class="highlighter-rouge">key</code>进行了排序，<code class="highlighter-rouge">description</code>的作用是将<code class="highlighter-rouge">key</code>转化为字符串。有关<code class="highlighter-rouge">description</code>的更多相关，可以看一下《Effective Objective-C 2.0》这本书的第 17 小节。</p>
+
+<p>参数已经构造完了，接下来就是根据<code class="highlighter-rouge">请求方法</code>的不同，把参数放在不同的地方：</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15181501774756.jpg" alt="" /></p>
+
+<p>这里，可能有疑问，为什么对于<code class="highlighter-rouge">GET</code>…请求不需要特别设置<code class="highlighter-rouge">Content-Type</code>呢，这是因为，根据<a href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">RFC 7231</a>的规定，只有在<code class="highlighter-rouge">POST</code>和<code class="highlighter-rouge">PUT</code>请求的时候，<code class="highlighter-rouge">Content-Type</code>才是必须的。你可以看下<a href="https://stackoverflow.com/questions/5661596/do-i-need-a-content-type-for-http-get-requests">这里</a>的解释。</p>
+
+<p>至此，<code class="highlighter-rouge">Request</code>的构造已经结束，我们来看下<code class="highlighter-rouge">Task</code>的构造</p>
+
+<h3 id="task">Task</h3>
+
+<p><code class="highlighter-rouge">Task</code>的构造要简单的多，通过<code class="highlighter-rouge">NSURLSession</code>来创建并返回：
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15181505867034.jpg" alt="" /></p>
+
+<p><code class="highlighter-rouge">url_session_manager_create_task_safely</code>主要是处理了一个Bug（<a href="http://openradar.appspot.com/radar?id=5871104061079552">Bug</a> &amp; <a href="https://github.com/AFNetworking/AFNetworking/issues/2093">issue</a>），我简单翻译了一下：</p>
+
+<blockquote>
+  <p>Bug 的大概简要：
+对于 NSURLSessionTask，他的 taskIdentifier 应该总是唯一的，但是，在 iOS 8 之前，会出现并发创建 NSURLSessionTask 的时候，有几率出现相同的 taskIdentifier.这是一个苹果的 Bug。在 iOS 8 之后已经被修复。
+影响：
+AF 依赖 taskIdentifier 来区分执行 dataTask 可能会造成错误。
+解决方法：
+在 iOS 8 之前，使用同步串行队列，来实现他们的同步有序创建。
+在 iOS 8 之后，已经被修复，无需处理。</p>
+</blockquote>
+
+<p>之后，通过设置<code class="highlighter-rouge">delegate</code>，关联了一个比较重要的类<code class="highlighter-rouge">AFURLSessionManagerTaskDelegate</code>。
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15181579380740.jpg" alt="" />
+这个方法把每个<code class="highlighter-rouge">task</code>都和<code class="highlighter-rouge">AFURLSessionManagerTaskDelegate</code>的实例一一对应，由它来管理<code class="highlighter-rouge">task</code>的开始、挂起、恢复、数据的接收、进度、下载。
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15181573256719.jpg" alt="" />
+除了<code class="highlighter-rouge">setDelegate:forTask</code>外，都是一些属性赋值，我们来看下这个方法：
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15181581848603.jpg" alt="" />
+首先，为什么要使用<code class="highlighter-rouge">NSLock</code>，是因为<code class="highlighter-rouge">mutableTaskDelegatesKeyedByTaskIdentifier</code>是个字典类型，字典是非线程安全的，所以在多线程的情况下，会出现访问错误。可以看<a href="https://github.com/AFNetworking/AFNetworking/issues/1422">这里</a>了解更多。</p>
+
+<p>再来看下<code class="highlighter-rouge">setupProgressForTask:</code>这个方法，这里是使用<code class="highlighter-rouge">NSProgress</code>来管理任务的取消、挂起、回复和进度的。使用<code class="highlighter-rouge">KVO</code>来监听<code class="highlighter-rouge">Task</code>的属性变化：
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15181586410010.jpg" alt="" /></p>
+
+<p><code class="highlighter-rouge">AFURLSessionManagerTaskDelegate</code>遵循了<code class="highlighter-rouge">NSURLSessionTaskDelegate</code>, <code class="highlighter-rouge">NSURLSessionDataDelegate</code>, <code class="highlighter-rouge">NSURLSessionDownloadDelegate</code>协议并实现了相关方法。</p>
+
+<p>至此，一个<code class="highlighter-rouge">GET</code>/<code class="highlighter-rouge">POST</code>请求已经完成。</p>
+
+<h3 id="afhttprequestserializer-的子类">AFHTTPRequestSerializer 的子类</h3>
+
+<p>我们上面提到，<code class="highlighter-rouge">AFHTTPRequestSerializer</code>有两个子类。
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15181635800971.jpg" alt="" />
+由于<code class="highlighter-rouge">AFHTTPRequestSerializer</code>遵循了<code class="highlighter-rouge">AFURLRequestSerialization</code>协议，所以这些子类也自然而然都遵循了这个协议，这个协议只声明了一个可选的方法：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- (NSURLRequest *)requestBySerializingRequest:withParameters:error
+</code></pre></div></div>
+<p>这个方法就是用来序列化请求的。我们通过这个方法，就能看到<code class="highlighter-rouge">AFHTTPRequestSerializer</code>及其子类的不同。我们这里只对比和<code class="highlighter-rouge">AFJSONRequestSerializer</code>的不同。
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15181619279078.jpg" alt="" /></p>
+
+<p>可以看到，如果请求是<code class="highlighter-rouge">GET</code>、<code class="highlighter-rouge">HEAD</code>、<code class="highlighter-rouge">DELETE</code>的话，直接调用的父类的方法。
+不一样的就是当请求方法是<code class="highlighter-rouge">POST</code>的时候，<code class="highlighter-rouge">Content-Type</code>的不同，以及<code class="highlighter-rouge">Body</code>的数据格式的不同。</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Type</th>
+      <th style="text-align: center">Content-Type</th>
+      <th style="text-align: center">data format</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">HTTP</td>
+      <td style="text-align: center">application/x-www-form-urlencoded</td>
+      <td style="text-align: center">UTF-8 data</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">JSON</td>
+      <td style="text-align: center">application/json</td>
+      <td style="text-align: center">json data</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">PropertyList</td>
+      <td style="text-align: center">application/x-plist</td>
+      <td style="text-align: center">p-list</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>从上表中，我们能很容易看出来他们之间的不同。</p>
+
+<h2 id="response">Response</h2>
+
+<p>说完请求，我们接着来讲响应。响应这块，其实上面已经有涉及，还记得<code class="highlighter-rouge">AFURLSessionManagerTaskDelegate</code>这个类吗？对于响应的处理，我们主要集中看这一部分的代理实现：
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15183208481249.jpg" alt="" />
+我们来具体看下，一个请求的进度、成功和失败中间经历了什么。</p>
+
+<p>当我们调用<code class="highlighter-rouge">NSURLSessionTask</code>的<code class="highlighter-rouge">- resume</code>方法的时候，请求就开始发送，这个时候，当服务器端有响应返回的时候，数据就会源源不断的流入客户端。</p>
+
+<p>首先，如果请求是<code class="highlighter-rouge">HTTPS</code>，会调用<code class="highlighter-rouge">didReceiveChallenge</code>来进行认证，认证又分为<code class="highlighter-rouge">seesion-level</code>和<code class="highlighter-rouge">task-level</code>。对应的方法分别是：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// session-level
+- URLSession:didReceiveChallenge:completionHandler:
+// task-level
+- URLSession:task:didReceiveChallenge:completionHandler:
+</code></pre></div></div>
+<p>如果你实现了<code class="highlighter-rouge">session-level</code>的方法，那么直接调用这个方法，如果你没有实现<code class="highlighter-rouge">session-level</code>而实现了<code class="highlighter-rouge">task-level</code>的方法，那么会尝试调用这个<code class="highlighter-rouge">task-level</code>的代理方法。关于<code class="highlighter-rouge">HTTPS</code>验证的问题，稍候再说。如果是<code class="highlighter-rouge">HTTP</code>，忽略这一步。</p>
+
+<p>然后，会频繁调用<code class="highlighter-rouge">- URLSession:dataTask:didReceiveData:</code>来接受数据。<code class="highlighter-rouge">AFURLSessionManager</code>和<code class="highlighter-rouge">AFURLSessionManagerTaskDelegate</code>都实现了这个代理方法，但是，前者只是处理了<code class="highlighter-rouge">Block</code>回调，真正做事情的还是后者，这种代码技巧值得学习一下。</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15183301308686.jpg" alt="" />
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15183301676177.jpg" alt="" /></p>
+
+<p>当数据接收完毕之后，无论结果是成功还是失败，都会调用<code class="highlighter-rouge">- URLSession:task:didCompleteWithError:</code>方法</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15183312397953.jpg" alt="" /></p>
+
+<p>同样的，真正的工作是由<code class="highlighter-rouge">AFURLSessionManagerTaskDelegate</code>去做的。我们重点看一下这个方法的实现。</p>
+
+<ul>
+  <li>首先，即使<code class="highlighter-rouge">error</code>为空，也不一定代表结果是<code class="highlighter-rouge">success</code>，因为还需要将返回数据的序列化。</li>
+  <li>数据的序列化，是异步并发进行的。而回调是主线程执行的。</li>
+</ul>
+
+<h3 id="数据的序列化">数据的序列化</h3>
+
+<p>如果<code class="highlighter-rouge">error</code>为空（<a href="https://stackoverflow.com/questions/36505444/urlsession-didcompletewitherror-nil-error">注意，这里的 error，指的是客户端的 error</a>），将收到数据进行序列化。
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15183330766637.jpg" alt="" /></p>
+
+<p><code class="highlighter-rouge">- responseObjectForResponse:data:error:</code>方法属于<code class="highlighter-rouge">AFURLResponseSerialization</code>协议。这个协议只声明了这一方法，遵循这个协议的类有：</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15183338620859.jpg" alt="" />
+从名字就能看出来，这些类都是针对特定的数据类型，做不同处理。它们的区别放后面讲。</p>
+
+<p><code class="highlighter-rouge">AFHTTPSessionManager</code>默认的响应序列化是<code class="highlighter-rouge">AFJSONResponseSerializer</code>。那我们就来看下当数据类型是<code class="highlighter-rouge">JSON</code>格式的情况下，作者是怎么处理的。</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15183340615320.jpg" alt="" /></p>
+
+<p>首先是验证数据的合法行：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[self validateResponse:(NSHTTPURLResponse *)response data:data error:error]
+</code></pre></div></div>
+<p>然后是使用<code class="highlighter-rouge">NSJSONSerialization</code>来将<code class="highlighter-rouge">NSData</code>转为<code class="highlighter-rouge">JSON</code>。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>responseObject = [NSJSONSerialization JSONObjectWithData:data options:self.readingOptions error:&amp;serializationError];
+</code></pre></div></div>
+
+<h3 id="数据的合法性验证">数据的合法性验证</h3>
+
+<ol>
+  <li>
+    <p>首先要确保<code class="highlighter-rouge">response</code>存在并且是<code class="highlighter-rouge">NSHTTPURLResponse</code>类型。</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> response &amp;&amp; [response isKindOfClass:[NSHTTPURLResponse class]
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>从<code class="highlighter-rouge">response</code>判断收到的数据的扩展类型(MIME)，判断该扩展类型是否是被包含于我们设置的<code class="highlighter-rouge">Accept</code>首部字段中。</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> self.acceptableContentTypes &amp;&amp; ![self.acceptableContentTypes containsObject:[response MIMEType]]
+</code></pre></div>    </div>
+
+    <p>这个<code class="highlighter-rouge">self.acceptableContentTypes</code>在响应序列化初始化的时候，已经设置好了。</p>
+
+    <p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15183356190193.jpg" alt="" />
+ 如果<code class="highlighter-rouge">MIME</code>不为空，并且<code class="highlighter-rouge">data</code>也不为空，返回的数据类型并不在<code class="highlighter-rouge">acceptableContentTypes</code>中，那么就可以直接抛出我们熟悉的那个错误了<code class="highlighter-rouge">Request failed: unacceptable content-type: XXX</code>(无法解析), 网上的解决方案有大部分是直接在这里加上<code class="highlighter-rouge">XXX</code>来解决的(Emmm…you happy jiu ok)。
+ <img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15183363819959.jpg" alt="" /></p>
+  </li>
+  <li>
+    <p>接下来判断响应码，看请求是否成功。</p>
+
+    <p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15183366457503.jpg" alt="" /></p>
+
+    <p><code class="highlighter-rouge">acceptableStatusCodes</code>也是在初始化的时候已经设定好了的，它是数字<code class="highlighter-rouge">200 ~ 299</code>的集合。</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   self.acceptableStatusCodes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(200, 100)];
+</code></pre></div>    </div>
+
+    <p>最后将结果返回。</p>
+  </li>
+</ol>
+
+<h3 id="afjsonresponseserializer-及其子类的区别">AFJSONResponseSerializer 及其子类的区别</h3>
+
+<p>上面讲到了<code class="highlighter-rouge">AFJSONResponseSerializer</code>有很多子类，无非是对不同的数据类型进行了不同的处理。他们的区别一方面提现在了<code class="highlighter-rouge">Accept</code>，另一方面提现在了解析数据时用的方法。</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Class</th>
+      <th style="text-align: center">Accept</th>
+      <th style="text-align: center">Serializer</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">AFHTTPResponseSerializer</td>
+      <td style="text-align: center">-</td>
+      <td style="text-align: center">-</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">AFJSONResponseSerializer</td>
+      <td style="text-align: center">application/json, text/json, text/javascript</td>
+      <td style="text-align: center">NSJSONSerialization</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">AFXMLParserResponseSerializer</td>
+      <td style="text-align: center">application/xml, text/xml</td>
+      <td style="text-align: center">NSXMLParser</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">AFXMLDocumentResponseSerializer</td>
+      <td style="text-align: center">application/xml, text/xml</td>
+      <td style="text-align: center">NSXMLDocument</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">AFPropertyListResponseSerializer</td>
+      <td style="text-align: center">application/x-plist</td>
+      <td style="text-align: center">NSPropertyListSerialization</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">AFImageResponseSerializer</td>
+      <td style="text-align: center">image/tiff, image/jpeg, image/gif, image/png, image/ico, image/x-icon, image/bmp, image/x-bmp, image/x-xbitmap, image/x-win-bitmap</td>
+      <td style="text-align: center">NSBitmapImageRep(macOS) or use UIImage</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">AFCompoundResponseSerializer</td>
+      <td style="text-align: center">多种类型的集合</td>
+      <td style="text-align: center">集合中能够序列化数据中的第一个类型</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="https">HTTPS</h2>
+
+<p><code class="highlighter-rouge">HTTPS</code>最早由网景公司推出，后经<code class="highlighter-rouge">IETF</code>标准化并扩展到互联网上，最开始是与<code class="highlighter-rouge">SSL</code>一起使用，后来逐渐演变到<code class="highlighter-rouge">TLS</code>，并于2000年正式确定并公布在了<a href="https://tools.ietf.org/html/rfc2818">RFC 2818</a>。<code class="highlighter-rouge">HTTPS</code>创立之初的目的主要是解决<code class="highlighter-rouge">HTTPS</code>的明文传输的不安全性和身份不确定性。<code class="highlighter-rouge">SSL/TLS</code>工作在应用层之下，传输层之上，使用公钥加密。简单来说，<code class="highlighter-rouge">HTTPS</code>就是披着<code class="highlighter-rouge">SSL/TLS</code>的<code class="highlighter-rouge">HTTP</code>，所以，<code class="highlighter-rouge">HTTPS</code>也常称为<code class="highlighter-rouge">HTTP over SSL/TLS</code>.在<code class="highlighter-rouge">HTTP</code>通讯建立之前，会进行<code class="highlighter-rouge">SSL</code>的连接，我们简单看下：</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15184016999014.jpg" alt="图片来自《图解 HTTP》" />
+对<code class="highlighter-rouge">HTTPS</code>的背景先了解到这里。我们来看下<code class="highlighter-rouge">AFNetworking</code>的实现。</p>
+
+<p>上面我们也已经提到过，当我们访问<code class="highlighter-rouge">HTTPS</code>资源时，会触发<code class="highlighter-rouge">- URLSession:didReceiveChallenge:completionHandler</code>代理发起验证。我们就是在这个方法里面进行处理<code class="highlighter-rouge">HTTPS</code>的相关逻辑的。</p>
+
+<p>首先，默认身份验证质询(disposition)为<code class="highlighter-rouge">NSURLSessionAuthChallengePerformDefaultHandling</code>,然后，先判断验证方法是否为服务器证书验证(NSURLAuthenticationMethodServerTrust)</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]
+</code></pre></div></div>
+<p>如果验证方法不是<code class="highlighter-rouge">NSURLAuthenticationMethodServerTrust</code>，disposition 仍为<code class="highlighter-rouge">NSURLSessionAuthChallengePerformDefaultHandling</code>.</p>
+
+<p>如果是<code class="highlighter-rouge">NSURLAuthenticationMethodServerTrust</code>，通过方法<code class="highlighter-rouge">- evaluateServerTrust: forDomain:</code>继续进行验证。</p>
+
+<p>验证服务器证书分为两步：</p>
+
+<ol>
+  <li>验证证书路径是否合法。</li>
+  <li>验证 App 要访问的域名是否是证书里面的域名。</li>
+</ol>
+
+<p>而域名验证，并非必须，所以，如果你不需要验证域名，则使用<a href="https://en.wikipedia.org/wiki/X.509">X.509 证书</a>，如果需要验证域名，则使用<code class="highlighter-rouge">SSL 证书</code>。</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15196990992265.jpg" alt="" /></p>
+
+<p><code class="highlighter-rouge">SecPolicyCreateSSL</code>和<code class="highlighter-rouge">SecPolicyCreateBasicX509</code>方法会返回根据不同证书类型生成的不同验证策略。</p>
+
+<p>接下来，对比本地证书和服务器返回的证书。它有三种对比方式：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>AFSSLPinningModeNone,   // 无条件信任
+AFSSLPinningModePublicKey,  // 与本地证书的公钥做对比。
+AFSSLPinningModeCertificate,    // 与本地证书的所有内容做对比。
+</code></pre></div></div>
+
+<p>如果是<code class="highlighter-rouge">AFSSLPinningModeNone</code>，并且也信任非法证书(<code class="highlighter-rouge">allowInvalidCertificates = YES</code>)，则会直接通过；如果不信任非法证书，则会根据上面的策略来验证服务器证书。</p>
+
+<h3 id="证书的验证">证书的验证</h3>
+
+<p>通过函数<code class="highlighter-rouge">AFServerTrustIsValid</code>来验证证书的合法性。</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15196991916640.jpg" alt="" /></p>
+
+<p>这个函数看起来比较奇怪，<code class="highlighter-rouge">__Require_noErr_Quiet</code>其实是一个宏。它长这样：
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15196992030958.jpg" alt="" /></p>
+
+<p>其实就是<code class="highlighter-rouge">do-while</code>语句+一个<code class="highlighter-rouge">goto</code>语句。<code class="highlighter-rouge">__builtin_expect</code>是<code class="highlighter-rouge">GCC</code>的一个函数，你可以先理解为<code class="highlighter-rouge">表达式</code>结果和<code class="highlighter-rouge">0</code>的对比，一样为真，否则为假。<a href="https://www.cnblogs.com/LubinLew/p/GCC-__builtin_expect.html">这里</a>可以了解更多关于<code class="highlighter-rouge">__builtin_expect</code>函数。</p>
+
+<p>通过<code class="highlighter-rouge">SecTrustEvaluate</code>来发起对证书和对应策略的验证,正确返回<code class="highlighter-rouge">0</code>。</p>
+
+<p>再根据<code class="highlighter-rouge">Pinning Mode</code>来分情况和本地证书做对比。</p>
+
+<p><code class="highlighter-rouge">HTTPS</code>身份认证的大概流程基本上就是这样的(可以右键在新标签打开以放大查看)：
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/didReceiveChallenge.jpg" alt="didReceiveChallenge" /></p>
+
+<p>上面说了这么多，大多数都是针对自定义证书的情况来处理的。其实在我们正常使用的过程中，无需做这么多设置。因为<code class="highlighter-rouge">pinning mode</code>默认是<code class="highlighter-rouge">AFSSLPinningModeNone</code>,即无条件信任，所以，在</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>if (self.SSLPinningMode == AFSSLPinningModeNone) {
+   return self.allowInvalidCertificates || AFServerTrustIsValid(serverTrust);
+} else if (!AFServerTrustIsValid(serverTrust) &amp;&amp; !self.allowInvalidCertificates) {
+   return NO;
+}
+</code></pre></div></div>
+<p>这一步的时候，已经结束了。也不存在本地证书和服务器证书的对比。</p>
+
+<h3 id="上传下载进度的实现">上传/下载进度的实现</h3>
+
+<p><code class="highlighter-rouge">AFNetworking</code>使用<code class="highlighter-rouge">KVO</code>对<code class="highlighter-rouge">NSURLSessionTask</code>属性监听，然后再把对应的值传递给<code class="highlighter-rouge">NSProgress</code>，而不是通过代理实现，上面有提到，<code class="highlighter-rouge">NSProgress</code>是用来管理任务的取消、挂起、恢复和当前进度的。</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15197039487425.jpg" alt="" /></p>
+
+<p>将<code class="highlighter-rouge">Task</code>和<code class="highlighter-rouge">NSProgress</code>关联起来。
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15197041480917.jpg" alt="" /></p>
+
+
+    </article>
+    
+    <div class="social-share-wrapper">
+        <div class="social-share"></div>
+    </div>
+    
+</div>
+
+<section class="author-detail">
+    <section class="post-footer-item author-card">
+        <div class="avatar">
+            <img src="/assets/img/profile.png" alt="">
+        </div>
+        <div class="author-name" rel="author">Ju Liaoyuan</div>
+        <div class="bio">
+            <p>iOS 搬砖，业余天文爱好者</p>
+        </div>
+        
+        <ul class="sns-links">
+            
+            <li>
+                <a href="//weibo.com/u/2738809475" target="_blank">
+                    <i class="iconfont icon-weibo"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//juejin.im/user/5872f9822f301e0057490c89" target="_blank">
+                    <i class="iconfont icon-juejin"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//github.com/liaoyuanng" target="_blank">
+                    <i class="iconfont icon-github"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//jianshu.com/u/f386d4a61d33" target="_blank">
+                    <i class="iconfont icon-jianshu"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="mailto:liaoyuan@imliaoyuan.com" target="_blank">
+                    <i class="iconfont icon-email"></i>
+                </a>
+            </li>
+            
+        </ul>
+        
+    </section>
+    <section class="post-footer-item read-next">
+        
+        <div class="read-next-item">
+            <a href="/2018/03/23/ElonMusk.html" class="read-next-link"></a>
+            <section>
+                <span>开挂的人生 - 读《硅谷钢铁侠：马斯克的冒险人生》有感</span>
+                <p></p>
+            </section>
+            
+            <div class="filter"></div>
+            <img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/musk.jpg" alt="">
+            
+        </div>
+        
+         
+        <div class="read-next-item">
+            <a href="/2018/02/12/NSURLSession.html" class="read-next-link"></a>
+            <section>
+                <span>NSURLSession 简述</span>
+                <p></p>
+            </section>
+            
+            <div class="filter"></div>
+            <img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/urlsession.png" alt="">
+            
+        </div>
+        
+    </section>
+    
+</section>
+
+<footer class="g-footer">
+    <section>Stay True © 2018</section>
+    <section>Powered by <a href="//jekyllrb.com">Jekyll</a> | <a href="https://github.com/liaoyuanng/StayTrue">Theme StayTrue</a>
+    <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></section>
+</footer>
+
+<script src="/assets/js/social-share.min.js"></script>
+<script>
+    socialShare('.social-share', {
+        sites: ['wechat','weibo','twitter','facebook'],
+        wechatQrcodeTitle: "分享到微信朋友圈",
+        wechatQrcodeHelper: '<p>扫码后分享😘</p>'
+    });
+</script>
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+/*写入自己的disqus信息*/
+s.src = '';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="/assets/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/assets/js/index.min.js"></script>
+</body>
+</html>

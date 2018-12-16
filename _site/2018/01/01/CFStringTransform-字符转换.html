@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head><!-- post -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CFStringTransform 字符转换 - Stay True</title>
+    <meta name="author"  content="Ju Liaoyuan">
+    <meta name="description" content="CFStringTransform 字符转换">
+    <meta name="keywords"  content="iOS">
+    <!-- Open Graph -->
+    <meta property="og:title" content="CFStringTransform 字符转换 - Stay True">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:4000/2018/01/01/CFStringTransform-%E5%AD%97%E7%AC%A6%E8%BD%AC%E6%8D%A2.html">
+    <meta property="og:description" content="iOS 搬砖，业余天文爱好者">
+    <meta property="og:site_name" content="Stay True">
+    <link rel="stylesheet" href="//cdn.staticfile.org/normalize/6.0.0/normalize.min.css">
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_roc50gemkxpw4s4i.css">
+    <link rel="stylesheet" href= "/assets/css/github-markdown.css" | prepend: site.baseurl >
+    <link rel="stylesheet" href="/assets/css/styles/default.css" | prepend: site.baseurl>
+    <link rel="stylesheet" href= "/assets/css/share.min.css"  | prepend: site.baseurl>
+    <link rel="stylesheet" href= "/assets/css/app.min.css" | prepend: site.baseurl >
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/assets/img/favicon.ico">
+</head>
+<body>
+    <!--[if lt IE 10]>
+<div class="alert-danger" role="alert">你的浏览器实在太太太旧了，放学别走，升级完浏览器再说！<a target="_blank" class="alert-link" href="http://browsehappy.com">立即升级</a></div>
+<![endif]-->
+<input id="nm-switch" type="hidden" value="false">
+
+<header class="g-header">
+    <div class="g-logo">
+        <a href="/"></a>
+    </div>
+    <i id="menu-toggle" class="iconfont icon-menu"></i>
+    <nav class="g-nav">
+        <ul>
+            
+            <li><a href="/">home</a></li>
+            
+            <li><a href="/tags.html">tags</a></li>
+            
+        </ul>
+    </nav>
+</header>
+
+<header class="g-banner post-header post-pattern-circuitBoard bgcolor-default post-no-cover" data-theme="default">
+    <div class="post-wrapper">
+        <div class="post-tags">
+             
+            
+            <a href="/tags#iOS" class="post-tag">iOS</a>
+            
+            
+        </div>
+        <h1>CFStringTransform 字符转换</h1>
+        <div class="post-meta">
+            <span class="post-meta-item"><i class="iconfont icon-author"></i><a href="http://localhost:4000" target="_blank" rel="author">Ju Liaoyuan</a></></span>
+            <time class="post-meta-item" datetime="18-01-01"><i class="iconfont icon-date"></i>01 Jan 2018</time>
+        </div>
+    </div>
+    
+</header>
+
+<div class="post-content">
+    
+    <article class="markdown-body">
+        <p>在看<code class="highlighter-rouge">AFNetworking</code>源码的时候，看到了下面的代码</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+if (userAgent) {
+        if (![userAgent canBeConvertedToEncoding:NSASCIIStringEncoding]) {
+            NSMutableString *mutableUserAgent = [userAgent mutableCopy];
+            if (CFStringTransform((__bridge CFMutableStringRef)(mutableUserAgent), NULL, (__bridge CFStringRef)@"Any-Latin; Latin-ASCII; [:^ASCII:] Remove", false)) {
+                userAgent = mutableUserAgent;
+            }
+        }
+        [self setValue:userAgent forHTTPHeaderField:@"User-Agent"];
+}
+
+</code></pre></div></div>
+
+<p>这段代码的作用就是设置 HTTP 请求头的用户代理部分。</p>
+
+<p>那么其中的<code class="highlighter-rouge">CFStringTransform</code> 的作用是什么呢，顺着找下去，竟发现了原作者给出的解析博客：<a href="http://nshipster.com/cfstringtransform/">CFStringTransform</a>。</p>
+
+<p>发现这个函数是用来转换字符编码格式的，它可以把拉丁字母、表情、中文等等转化为标准的 ASCII 字符。基于此，写下我的理解。</p>
+
+<h3 id="函数原型">函数原型</h3>
+
+<p><code class="highlighter-rouge">CFStringTransform(CFMutableStringRef string, CFRange *range, CFStringRef transform, Boolean reverse)</code></p>
+
+<ul>
+  <li>string：要转的字符串，类型为<code class="highlighter-rouge">CFMutableStringRef</code>。</li>
+  <li>range：要转换的范围，指针类型，如果是全部转换，传<code class="highlighter-rouge">NULL</code> 即可。</li>
+  <li>transform：<code class="highlighter-rouge">string</code> 的编码类型。如果和<code class="highlighter-rouge">string</code>的编码类型不一致，会导致转换失败。</li>
+  <li>reverse：是否将转换后的结果字符串倒序。</li>
+</ul>
+
+<h3 id="transform">Transform</h3>
+
+<p><code class="highlighter-rouge">transform</code>有很多个字段：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// CFString.h
+
+// 带有重音符号的拉丁字符
+CF_EXPORT const CFStringRef kCFStringTransformStripCombiningMarks;
+// 拉丁字符
+CF_EXPORT const CFStringRef kCFStringTransformToLatin;
+// 全角半角字符
+CF_EXPORT const CFStringRef kCFStringTransformFullwidthHalfwidth;
+// 片假字符
+CF_EXPORT const CFStringRef kCFStringTransformLatinKatakana;
+// 平假字符
+CF_EXPORT const CFStringRef kCFStringTransformLatinHiragana;
+// 平假片假字符
+CF_EXPORT const CFStringRef kCFStringTransformHiraganaKatakana;
+// 中文字符
+CF_EXPORT const CFStringRef kCFStringTransformMandarinLatin;
+// 韩文字符
+CF_EXPORT const CFStringRef kCFStringTransformLatinHangul;
+// 阿拉伯字符
+CF_EXPORT const CFStringRef kCFStringTransformLatinArabic;
+// 以色列语字符
+CF_EXPORT const CFStringRef kCFStringTransformLatinHebrew;
+// 泰语字符
+CF_EXPORT const CFStringRef kCFStringTransformLatinThai;
+// 斯拉夫字符
+CF_EXPORT const CFStringRef kCFStringTransformLatinCyrillic;
+// 希腊字符
+CF_EXPORT const CFStringRef kCFStringTransformLatinGreek;
+// 十六进制 XML 字符
+CF_EXPORT const CFStringRef kCFStringTransformToXMLHex;
+// unicode 字符，包括emoji
+CF_EXPORT const CFStringRef kCFStringTransformToUnicodeName;
+// 带有音标的字符
+CF_EXPORT const CFStringRef kCFStringTransformStripDiacritics API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0));
+
+</code></pre></div></div>
+
+<h3 id="应用">应用</h3>
+
+<p>对于我们来说，最有用的可能就是把中文转换为拼音字母：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    NSString *originalString = @"你好";
+    NSMutableString *mutableString = originalString.mutableCopy;
+    CFStringTransform((__bridge CFMutableStringRef)(mutableString), NULL, kCFStringTransformMandarinLatin, false);
+    originalString = mutableString.copy; // nǐ hǎo
+    
+    // 去掉音标
+    mutableString = originalString.mutableCopy;
+    CFStringTransform((__bridge CFMutableStringRef)(mutableString), NULL, kCFStringTransformStripDiacritics, false);
+    originalString = mutableString.copy; // ni hao
+</code></pre></div></div>
+
+<p>或者把 emoji 转为字符</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    NSString *originalString = @"🐶";
+    NSMutableString *mutableString = originalString.mutableCopy;
+    CFStringTransform((__bridge CFMutableStringRef)(mutableString), NULL, kCFStringTransformToUnicodeName, false);
+    originalString = mutableString.copy; // \N{DOG FACE}
+</code></pre></div></div>
+
+<h3 id="高级用法">高级用法</h3>
+
+<p>到这里，基本已经明白<code class="highlighter-rouge">CFStringTransform</code>函数的功能。但是回看一开始的代码，作者写的<code class="highlighter-rouge">transform</code>是一串字符串<code class="highlighter-rouge">"Any-Latin; Latin-ASCII; [:^ASCII:] Remove"</code>。这又是什么意思呢。作者也在原文中解释了。</p>
+
+<blockquote>
+  <p>For anyone wanting to be especially clever, all of the necessary transformations can actually be done in a single pass, by specifying the ICU transform “Any-Latin; Latin-ASCII; Any-Lower”.</p>
+</blockquote>
+
+<p>也就是通过<code class="highlighter-rouge">Any-Latin; Latin-ASCII; Any-Lower</code>来指定转换为<code class="highlighter-rouge">拉丁字符转换为 ASCII，字母全部小写</code>的格式。</p>
+
+<p>拿上面的例子来说，我们可以一步完成中文转拼音并且不带音标。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    NSString *originalString = @"你好";
+    NSMutableString *mutableString = originalString.mutableCopy;
+    CFStringTransform((__bridge CFMutableStringRef)(mutableString), NULL, (__bridge CFStringRef)@"Any-Latin; Latin-ASCII; Any-Lower", false);
+    originalString = mutableString.copy; // ni hao
+</code></pre></div></div>
+
+<p>这里的用法，可以参考<a href="http://userguide.icu-project.org/transforms/general#TOC-ICU-Transliterators">ICU</a></p>
+
+<h2 id="reference">Reference</h2>
+<p><a href="http://nshipster.com/cfstringtransform/">CFStringTransform</a></p>
+
+
+    </article>
+    
+    <div class="social-share-wrapper">
+        <div class="social-share"></div>
+    </div>
+    
+</div>
+
+<section class="author-detail">
+    <section class="post-footer-item author-card">
+        <div class="avatar">
+            <img src="/assets/img/profile.png" alt="">
+        </div>
+        <div class="author-name" rel="author">Ju Liaoyuan</div>
+        <div class="bio">
+            <p>iOS 搬砖，业余天文爱好者</p>
+        </div>
+        
+        <ul class="sns-links">
+            
+            <li>
+                <a href="//weibo.com/u/2738809475" target="_blank">
+                    <i class="iconfont icon-weibo"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//juejin.im/user/5872f9822f301e0057490c89" target="_blank">
+                    <i class="iconfont icon-juejin"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//github.com/liaoyuanng" target="_blank">
+                    <i class="iconfont icon-github"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//jianshu.com/u/f386d4a61d33" target="_blank">
+                    <i class="iconfont icon-jianshu"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="mailto:liaoyuan@imliaoyuan.com" target="_blank">
+                    <i class="iconfont icon-email"></i>
+                </a>
+            </li>
+            
+        </ul>
+        
+    </section>
+    <section class="post-footer-item read-next">
+        
+        <div class="read-next-item">
+            <a href="/2018/01/01/free(2017),-malloc(2018).html" class="read-next-link"></a>
+            <section>
+                <span>free(2017), malloc(2018)</span>
+                <p>  第三旋臂边缘的一颗蓝色行星上的碳基生物正在庆祝他们所在的行星又在该恒星系里完成了一次公转</p>
+            </section>
+            
+            <div class="filter"></div>
+            <img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/dribbble.png" alt="">
+            
+        </div>
+        
+         
+        <div class="read-next-item">
+            <a href="/2017/10/13/%E5%89%81%E6%89%8B-%E5%BC%80%E7%AE%B1%E4%BF%9D%E5%8F%8B%E4%BA%BA%E4%BD%93%E5%B7%A5%E5%AD%A6%E6%A4%85.html" class="read-next-link"></a>
+            <section>
+                <span>剁手-开箱保友人体工学椅</span>
+                <p>本着不能亏(zuo)待(zhe)自(nan)己(shou)的原则，剁手了保友的金卓B人体工学椅。现在，离程序员装备...</p>
+            </section>
+            
+            <div class="filter"></div>
+            <img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/enjoy-classic-main.jpg" alt="">
+            
+        </div>
+        
+    </section>
+    
+</section>
+
+<footer class="g-footer">
+    <section>Stay True © 2018</section>
+    <section>Powered by <a href="//jekyllrb.com">Jekyll</a> | <a href="https://github.com/liaoyuanng/StayTrue">Theme StayTrue</a>
+    <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></section>
+</footer>
+
+<script src="/assets/js/social-share.min.js"></script>
+<script>
+    socialShare('.social-share', {
+        sites: ['wechat','weibo','twitter','facebook'],
+        wechatQrcodeTitle: "分享到微信朋友圈",
+        wechatQrcodeHelper: '<p>扫码后分享😘</p>'
+    });
+</script>
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+/*写入自己的disqus信息*/
+s.src = '';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="/assets/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/assets/js/index.min.js"></script>
+</body>
+</html>

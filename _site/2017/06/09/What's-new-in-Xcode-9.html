@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head><!-- post -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's new in Xcode 9 - Stay True</title>
+    <meta name="author"  content="Ju Liaoyuan">
+    <meta name="description" content="What's new in Xcode 9">
+    <meta name="keywords"  content="iOS">
+    <!-- Open Graph -->
+    <meta property="og:title" content="What's new in Xcode 9 - Stay True">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:4000/2017/06/09/What's-new-in-Xcode-9.html">
+    <meta property="og:description" content="iOS 搬砖，业余天文爱好者">
+    <meta property="og:site_name" content="Stay True">
+    <link rel="stylesheet" href="//cdn.staticfile.org/normalize/6.0.0/normalize.min.css">
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_roc50gemkxpw4s4i.css">
+    <link rel="stylesheet" href= "/assets/css/github-markdown.css" | prepend: site.baseurl >
+    <link rel="stylesheet" href="/assets/css/styles/default.css" | prepend: site.baseurl>
+    <link rel="stylesheet" href= "/assets/css/share.min.css"  | prepend: site.baseurl>
+    <link rel="stylesheet" href= "/assets/css/app.min.css" | prepend: site.baseurl >
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/assets/img/favicon.ico">
+</head>
+<body>
+    <!--[if lt IE 10]>
+<div class="alert-danger" role="alert">你的浏览器实在太太太旧了，放学别走，升级完浏览器再说！<a target="_blank" class="alert-link" href="http://browsehappy.com">立即升级</a></div>
+<![endif]-->
+<input id="nm-switch" type="hidden" value="false">
+
+<header class="g-header">
+    <div class="g-logo">
+        <a href="/"></a>
+    </div>
+    <i id="menu-toggle" class="iconfont icon-menu"></i>
+    <nav class="g-nav">
+        <ul>
+            
+            <li><a href="/">home</a></li>
+            
+            <li><a href="/tags.html">tags</a></li>
+            
+        </ul>
+    </nav>
+</header>
+
+<header class="g-banner post-header post-pattern-circuitBoard bgcolor-default " data-theme="default">
+    <div class="post-wrapper">
+        <div class="post-tags">
+             
+            
+            <a href="/tags#iOS" class="post-tag">iOS</a>
+            
+            
+        </div>
+        <h1>What's new in Xcode 9</h1>
+        <div class="post-meta">
+            <span class="post-meta-item"><i class="iconfont icon-author"></i><a href="http://localhost:4000" target="_blank" rel="author">Ju Liaoyuan</a></></span>
+            <time class="post-meta-item" datetime="17-06-09"><i class="iconfont icon-date"></i>10 Jun 2017</time>
+        </div>
+    </div>
+    
+    <div class="filter"></div>
+    <div class="post-cover" style="background: url('https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/xcode-9-simulator-large.png') center no-repeat; background-size: cover;">
+    
+</header>
+
+<div class="post-content">
+    
+    <article class="markdown-body">
+        <h2 id="前言">前言</h2>
+
+<p><code class="highlighter-rouge">WWDC</code>过后, 苹果发布了一系列的<code class="highlighter-rouge">Bate</code> 版固件及工具，我们单表其一，看看<code class="highlighter-rouge">Xcode 9</code>中的新功能。如果你也想体验<code class="highlighter-rouge">Xcode 9</code>,那么你的 Mac 系统的版本至少是<code class="highlighter-rouge">macOS 10.12.4</code>.</p>
+
+<h2 id="初窥">初窥</h2>
+
+<h3 id="editor">Editor</h3>
+
+<p>打开<code class="highlighter-rouge">Xcode 9</code>之后，发现<code class="highlighter-rouge">iOS</code>标签多了<code class="highlighter-rouge">AR</code> 和<code class="highlighter-rouge">文件管理</code>两个。并且<code class="highlighter-rouge">Framework</code>的图标也得到了统一。不再拟物。放个对比(左:Xcode 8,右:Xcode 9).
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14968236844679.jpg" alt="" /></p>
+
+<p>按照正常的套路，随便新建一个工程。</p>
+
+<p>打开工程的第一眼，就感觉编辑区域看起来更顺眼了。和之前对比，发现是去掉了左边<code class="highlighter-rouge">显示行号</code>的边栏颜色和编辑区域统一了，所以看起来更整齐了。</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14968242702878.jpg" alt="" /></p>
+
+<p>按着<code class="highlighter-rouge">Command ⌘</code> 键，随便点一个方法，和之前不同的是，不会直接跳转到方法的声明，而是会出现下面的菜单:
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14968244477757.jpg" alt="" /></p>
+
+<p>如果想像之前一样直接跳转到函数声明，则需要同时按着<code class="highlighter-rouge">Control ⌃</code>和<code class="highlighter-rouge">Command ⌘</code>键再点击方法可以跳转到方法的声明。</p>
+
+<p>同样，可以试着看看点击变量有什么变化(PS:Xcode 9的代码提示 real、real 快了很多):</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14968248897092.jpg" alt="" /></p>
+
+<p>恩，比上面的多了一个<code class="highlighter-rouge">Rename</code>, 当点击重命名的时候，会有一个很炫的折叠动画:</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/rename.gif" alt="rename" /></p>
+
+<p>点击某一个方法呢？
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14968255687360.jpg" alt="" /></p>
+
+<p>把之前的<code class="highlighter-rouge">Extract Function</code>和<code class="highlighter-rouge">Extract Method</code>直接放在了这个菜单。这样我们就可以更加方便的把某些实现单独提取封装成方法了:
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/extractedMethod.gif" alt="extractedMethod" /></p>
+
+<h3 id="simulator">Simulator</h3>
+
+<p>让我们打开模拟器看一看。</p>
+
+<p>Wow!仿佛又回到了<code class="highlighter-rouge">Xcode 5</code>之前，而且更加细腻了。</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14968349777743.jpg" alt="" /></p>
+
+<p>而且周围的按键和 <code class="highlighter-rouge">home</code>键都可以点击的。</p>
+
+<p>此外还发现了一些别的功能：</p>
+
+<ul>
+  <li>可以和别的版本的<code class="highlighter-rouge">Xcode</code>的模拟器共存。</li>
+  <li>除了可以使用<code class="highlighter-rouge">Command ⌘ + 1</code>、<code class="highlighter-rouge">Command ⌘ + 2</code>、<code class="highlighter-rouge">Command ⌘ + 3</code>来缩放模拟器外，<code class="highlighter-rouge">Xcode 9</code>还支持把鼠标移动到四个角的任意一个角来自由缩放.</li>
+  <li>可以同时开启多个不同的模拟器。</li>
+</ul>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14969050138762.jpg" alt="" /></p>
+
+<h2 id="more">More</h2>
+
+<p>上面介绍的都是很容易就发现的一些新特性。要完全了解<code class="highlighter-rouge">Xcode 9</code>，那就不得不去看官方的<a href="http://adcdownload.apple.com/WWDC_2017/Xcode_9_beta/Xcode_9_beta_Release_Notes.pdf">Release Notes</a></p>
+
+<p>那么，接下来就按照<a href="http://adcdownload.apple.com/WWDC_2017/Xcode_9_beta/Xcode_9_beta_Release_Notes.pdf">Release Notes</a>的顺序一个个来介绍。</p>
+
+<ol>
+  <li>
+    <p>首先，<strong>值得注意的是</strong>，<code class="highlighter-rouge">iOS 11</code>不再支持32位应用，如果我们在项目的<code class="highlighter-rouge">target</code> -&gt; <code class="highlighter-rouge">General</code> -&gt; <code class="highlighter-rouge">Deployment Target</code> 中设置系统为<code class="highlighter-rouge">iOS 11</code>，则直接编译都不能通过。如果设置为<code class="highlighter-rouge">iOS 11</code>之前的，编译还是可以的（敲黑板、划重点了）。</p>
+  </li>
+  <li>
+    <p>现在 <code class="highlighter-rouge">Group</code> 和 <code class="highlighter-rouge">Folder</code>关联了一起，也就是说之前虚拟的工程文件夹现在会自动创建实体的文件夹。而无需我们去手动导入了(好评)。而且我们在拖动文件的时候，会自动更新文件和文件目录，其他的一些操作，比如创建、重命名、删除组都将会相应的更改文件系统中的关联目录。</p>
+
+    <p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14968370039484.jpg" alt="" /></p>
+
+    <p>如果需要取消<code class="highlighter-rouge">Group</code> 和<code class="highlighter-rouge">Folder</code>的关联，可以在<code class="highlighter-rouge">File Inspector</code> 中点击<code class="highlighter-rouge">X</code>就行:
+ <img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14968937655104.jpg" alt="" /></p>
+
+    <p>同样的，我们也可以在这里关联某一个<code class="highlighter-rouge">Group</code>和<code class="highlighter-rouge">Folder</code>.</p>
+  </li>
+  <li>
+    <p>自动匹配分隔符。当我们选中文字的时候，输入任意一个<code class="highlighter-rouge">opening delimiter</code>，<code class="highlighter-rouge">Xcode</code>都会 自动匹配<code class="highlighter-rouge">closing delimiter</code>。自动匹配的分隔符包括：<code class="highlighter-rouge">" "</code>, <code class="highlighter-rouge">( )</code>, <code class="highlighter-rouge">[ ]</code>, <code class="highlighter-rouge">{ }</code>.个人感觉不太实用，因为我们可以直接在后面添加<code class="highlighter-rouge">closing delimiter</code>,就可以自动补全<code class="highlighter-rouge">opening delimiter</code>。</p>
+  </li>
+</ol>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/auto_matched.gif" alt="auto_matched" /></p>
+
+<ol>
+  <li>
+    <p>使用<code class="highlighter-rouge">command ⌘</code> + <code class="highlighter-rouge">-</code>缩小文字，使用<code class="highlighter-rouge">command ⌘</code> + <code class="highlighter-rouge">+</code>放大文字(终于支持了)。</p>
+  </li>
+  <li>
+    <p>在<code class="highlighter-rouge">偏好设置</code> -&gt; <code class="highlighter-rouge">Font &amp; Color</code> 中增加了光标的样式。
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14968403238590.jpg" alt="" /></p>
+  </li>
+  <li><code class="highlighter-rouge">Asset Catelog</code>现在支持了<code class="highlighter-rouge">.avci</code>, <code class="highlighter-rouge">.heic</code>, <code class="highlighter-rouge">.heif</code>格式的文件。</li>
+  <li>
+    <p>增加<code class="highlighter-rouge">主线程检测器(Main Thread Checker)</code>.我们都知道，我们在开发中都要在主线程访问<code class="highlighter-rouge">UIKit/AppKit</code>。这经常会出现一些莫名其妙的问题：比如图片加载需要一段时间，又比如严重的直接 Crash。如果想了解更多可以参考<a href="https://objccn.io/issue-2-4/">线程安全类的设计</a>这篇文章。文中也提到了一个检测是否是在主线程操作 UI 的非官方工具.现在。终于有了<code class="highlighter-rouge">官方工具</code>。</p>
+
+    <p>我们现撸个测试用例:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> dispatch_queue_t queue = dispatch_queue_create("com.newFunction", NULL);
+ dispatch_async(queue, ^{
+     UIView *view = [UIView new];
+     [self.view addSubview:view];
+ });
+    
+</code></pre></div>    </div>
+
+    <p>运行后，如果是<code class="highlighter-rouge">Xcode 9</code>之前版本的话，我们可能会在控制台获得下面的 Log:</p>
+
+    <blockquote>
+      <p>This application is modifying the autolayout engine from a background thread after the engine was accessed from the main thread. This can lead to engine corruption and weird crashes.</p>
+    </blockquote>
+
+    <p>而现在，我们获得 Log 信息更详细了:</p>
+
+    <blockquote>
+      <p>[reports] Main Thread Checker: UI API called on a background thread: -[UIView init]
+PID: 59536, TID: 1305198, Thread name: (com.newFunction), Queue name: com.newFunction, QoS: 0</p>
+    </blockquote>
+
+    <p>除了警告原因，进程信息、线程信息都给了我们。更赞的是，在<code class="highlighter-rouge">issue navigator</code>的<code class="highlighter-rouge">runtime</code> 标签中就会显示出<code class="highlighter-rouge">Warning</code>:
+ <img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14968445899157.jpg" alt="" /></p>
+
+    <p>而点击后直接定位到问题代码:
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14968446470337.jpg" alt="" /></p>
+
+    <p>而在<code class="highlighter-rouge">ToolBar</code> 上的 <code class="highlighter-rouge">activiry</code> 面板也会有相关的信息。
+ <img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14969352690465.jpg" alt="" /></p>
+
+    <p><em>从左至右依次是:编译时 Warning、编译时 Error、运行时 Warning.</em></p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">Undefined Behavior Sanitizer</code>：一个新的运行时工具，可以检查<code class="highlighter-rouge">整数溢出(integer overflows)</code>、<code class="highlighter-rouge">无效转换(invalid casts)</code>等。我们可以在<code class="highlighter-rouge">Scheme</code> 里面管理这些功能:</p>
+
+    <p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14968887380086.jpg" alt="" /></p>
+
+    <blockquote>
+      <p><em>Undefined Behavior Sanitizer</em>、<em>Address Sanitizer</em>、<em>Thread Sanitizer</em>功能暂时不太清楚，有了解的提供下，谢谢。</p>
+    </blockquote>
+  </li>
+  <li>
+    <p>现在可以使用通过无线方式来调试程序了，而非必须使用数据线。</p>
+
+    <p>首先，想要无线调试，硬件系统必须达到要求:<code class="highlighter-rouge">Xcode 9 or later</code>、所以你的 Mac 系统必须是<code class="highlighter-rouge">macOS 10.12.4 or later</code>, <code class="highlighter-rouge">iOS 11.0 or later</code>,iPhone 和 Mac 处于同一 WiFi 下。</p>
+
+    <p>然后，先使用数据线连接你的 Mac,打开<code class="highlighter-rouge">Xcode 9</code>中的<code class="highlighter-rouge">Window</code> -&gt; <code class="highlighter-rouge">Devices &amp; Simulators</code>菜单，如下:</p>
+
+    <p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14969343435768.jpg" alt="" /></p>
+
+    <p>勾选<code class="highlighter-rouge">Connect via network</code>，之后左侧的设备名字后面会出现一个网络的图标。这个时候就可以拔掉数据线了。</p>
+
+    <p>回到 Xcode,会发现手机依然可以使用。并不会提示设备断开连接之类的:
+ <img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14969348840426.jpg" alt="" /></p>
+  </li>
+  <li>
+    <p>代码管理的深度集成。现在，在<code class="highlighter-rouge">Navigator bar</code> 上多了一个 Tab: <code class="highlighter-rouge">Source Control</code>。无论你用的是<code class="highlighter-rouge">SVN</code> 还是<code class="highlighter-rouge">Git</code>，现在都可以很方便的查看管理你的代码仓库：</p>
+
+    <p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14968948858408.jpg" alt="" /></p>
+
+    <p>Branches、Tags、Remotes一览无余。我们可以在这里 push、pull、merge、新建分支、切换分支、新增 Tag、查看提交历史记录、双击某一条 commit，对比代码，添加忽略文件等等几乎所有日常使用的一些基础功能。</p>
+
+    <p><code class="highlighter-rouge">Xcode 9</code>与<code class="highlighter-rouge">GitHub</code> 深度集成，提供了包括<code class="highlighter-rouge">配置 SSH key</code>、<code class="highlighter-rouge">一键克隆</code>等功能。</p>
+  </li>
+  <li>
+    <p>新的编译系统。新的编译器已经用<code class="highlighter-rouge">Swift</code> 重写了，性能得到了很大的提升。其中，内部搜索功能官方号称提速<code class="highlighter-rouge">50x</code>.</p>
+
+    <p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14969014658034.jpg" alt="" /></p>
+
+    <p>新的编译系统默认是关闭的，如果我们想要体验的话，需要在<code class="highlighter-rouge">File</code> -&gt; <code class="highlighter-rouge">Project Setting</code>中选择。</p>
+
+    <p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14969020747629.jpg" alt="" /></p>
+  </li>
+  <li>优化 Markdown。现在 Xcode 支持了 markdown 的高亮语法以及多级标题的字体大小。</li>
+</ol>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/14969772017949.jpg" alt="" /></p>
+
+<p>在编辑区域的快速跳转中，也能链接到更多的Header。</p>
+
+<h2 id="总结">总结</h2>
+
+<p>使用下来，感觉<code class="highlighter-rouge">Xcode 9</code>的诚意满满，苹果终于要改变一下自家令人诟病的<code class="highlighter-rouge">IDE</code>了。但<code class="highlighter-rouge">Bate</code>版各种不稳定还是依旧，时不时的打不开模拟器，必须要完全退出<code class="highlighter-rouge">Xcode</code>重新打开。稳定性还有待提高。文中如有错误纰漏，欢迎指正👏🏻。</p>
+
+<h2 id="reference">Reference</h2>
+
+<ul>
+  <li><a href="http://adcdownload.apple.com/WWDC_2017/Xcode_9_beta/Xcode_9_beta_Release_Notes.pdf">Release Notes</a></li>
+</ul>
+
+
+    </article>
+    
+    <div class="social-share-wrapper">
+        <div class="social-share"></div>
+    </div>
+    
+</div>
+
+<section class="author-detail">
+    <section class="post-footer-item author-card">
+        <div class="avatar">
+            <img src="/assets/img/profile.png" alt="">
+        </div>
+        <div class="author-name" rel="author">Ju Liaoyuan</div>
+        <div class="bio">
+            <p>iOS 搬砖，业余天文爱好者</p>
+        </div>
+        
+        <ul class="sns-links">
+            
+            <li>
+                <a href="//weibo.com/u/2738809475" target="_blank">
+                    <i class="iconfont icon-weibo"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//juejin.im/user/5872f9822f301e0057490c89" target="_blank">
+                    <i class="iconfont icon-juejin"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//github.com/liaoyuanng" target="_blank">
+                    <i class="iconfont icon-github"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//jianshu.com/u/f386d4a61d33" target="_blank">
+                    <i class="iconfont icon-jianshu"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="mailto:liaoyuan@imliaoyuan.com" target="_blank">
+                    <i class="iconfont icon-email"></i>
+                </a>
+            </li>
+            
+        </ul>
+        
+    </section>
+    <section class="post-footer-item read-next">
+        
+        <div class="read-next-item">
+            <a href="/2017/09/26/hello-jekyll.html" class="read-next-link"></a>
+            <section>
+                <span>Hello Jekyll</span>
+                <p>Hello Jekyll, Bye Hexo.</p>
+            </section>
+            
+            <div class="filter"></div>
+            <img src="http://on2171g4d.bkt.clouddn.com/jekyll-banner.png" alt="">
+            
+        </div>
+        
+         
+        <div class="read-next-item">
+            <a href="/2017/05/28/readingList.html" class="read-next-link"></a>
+            <section>
+                <span>Reading List</span>
+                <p>  TALK IS CHEAP</p>
+            </section>
+            
+            <div class="filter"></div>
+            <img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/aaron-burden-236415.jpg" alt="">
+            
+        </div>
+        
+    </section>
+    
+</section>
+
+<footer class="g-footer">
+    <section>Stay True © 2018</section>
+    <section>Powered by <a href="//jekyllrb.com">Jekyll</a> | <a href="https://github.com/liaoyuanng/StayTrue">Theme StayTrue</a>
+    <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></section>
+</footer>
+
+<script src="/assets/js/social-share.min.js"></script>
+<script>
+    socialShare('.social-share', {
+        sites: ['wechat','weibo','twitter','facebook'],
+        wechatQrcodeTitle: "分享到微信朋友圈",
+        wechatQrcodeHelper: '<p>扫码后分享😘</p>'
+    });
+</script>
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+/*写入自己的disqus信息*/
+s.src = '';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="/assets/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/assets/js/index.min.js"></script>
+</body>
+</html>

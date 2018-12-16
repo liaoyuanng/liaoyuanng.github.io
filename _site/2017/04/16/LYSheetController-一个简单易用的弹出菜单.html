@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head><!-- post -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一个简单易用的弹出菜单 - Stay True</title>
+    <meta name="author"  content="Ju Liaoyuan">
+    <meta name="description" content="一个简单易用的弹出菜单">
+    <meta name="keywords"  content="iOS">
+    <!-- Open Graph -->
+    <meta property="og:title" content="一个简单易用的弹出菜单 - Stay True">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:4000/2017/04/16/LYSheetController-%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E6%98%93%E7%94%A8%E7%9A%84%E5%BC%B9%E5%87%BA%E8%8F%9C%E5%8D%95.html">
+    <meta property="og:description" content="iOS 搬砖，业余天文爱好者">
+    <meta property="og:site_name" content="Stay True">
+    <link rel="stylesheet" href="//cdn.staticfile.org/normalize/6.0.0/normalize.min.css">
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_roc50gemkxpw4s4i.css">
+    <link rel="stylesheet" href= "/assets/css/github-markdown.css" | prepend: site.baseurl >
+    <link rel="stylesheet" href="/assets/css/styles/default.css" | prepend: site.baseurl>
+    <link rel="stylesheet" href= "/assets/css/share.min.css"  | prepend: site.baseurl>
+    <link rel="stylesheet" href= "/assets/css/app.min.css" | prepend: site.baseurl >
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/assets/img/favicon.ico">
+</head>
+<body>
+    <!--[if lt IE 10]>
+<div class="alert-danger" role="alert">你的浏览器实在太太太旧了，放学别走，升级完浏览器再说！<a target="_blank" class="alert-link" href="http://browsehappy.com">立即升级</a></div>
+<![endif]-->
+<input id="nm-switch" type="hidden" value="false">
+
+<header class="g-header">
+    <div class="g-logo">
+        <a href="/"></a>
+    </div>
+    <i id="menu-toggle" class="iconfont icon-menu"></i>
+    <nav class="g-nav">
+        <ul>
+            
+            <li><a href="/">home</a></li>
+            
+            <li><a href="/tags.html">tags</a></li>
+            
+        </ul>
+    </nav>
+</header>
+
+<header class="g-banner post-header post-pattern-circuitBoard bgcolor-default post-no-cover" data-theme="default">
+    <div class="post-wrapper">
+        <div class="post-tags">
+             
+            
+            <a href="/tags#iOS" class="post-tag">iOS</a>
+            
+            
+        </div>
+        <h1>一个简单易用的弹出菜单</h1>
+        <div class="post-meta">
+            <span class="post-meta-item"><i class="iconfont icon-author"></i><a href="http://localhost:4000" target="_blank" rel="author">Ju Liaoyuan</a></></span>
+            <time class="post-meta-item" datetime="17-04-16"><i class="iconfont icon-date"></i>17 Apr 2017</time>
+        </div>
+    </div>
+    
+</header>
+
+<div class="post-content">
+    
+    <article class="markdown-body">
+        <h1 id="lysheetcontroller---一个简单易用的弹出菜单">LYSheetController - 一个简单易用的弹出菜单</h1>
+
+<blockquote>
+  <p><a href="https://github.com/Stu-JuLiaoY/LYSheetController">LYSheetController</a> - A simple, highly scalable, powerful pop-up menu</p>
+</blockquote>
+
+<h2 id="前言">前言</h2>
+
+<p>对于<code class="highlighter-rouge">iOS</code>用户来说，从底部<code class="highlighter-rouge">弹出菜单</code>是很常见的一个功能，而它的样式也是多种多样。比如：</p>
+
+<p><code class="highlighter-rouge">iOS</code>原生的<code class="highlighter-rouge">UIActionSheet</code>(UIAlertController)：</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/IMG_6273.png" alt="IMG_6273-w375" /></p>
+
+<p><code class="highlighter-rouge">QQ</code>的(最常见的):</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/IMG_6266.png" alt="IMG_6266-w375" /></p>
+
+<p><code class="highlighter-rouge">即刻</code>的:
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/IMG_6268.png" alt="IMG_6268-w320" />
+我司的:
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/IMG_6267.png" alt="IMG_6267-w320" /></p>
+
+<p>可见，菜单的样式不一，很难统一。甚至一个 App 的不同页面，样式也不一样：
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/IMG_6271.png" alt="IMG_6271-w320" />   <img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/IMG_6270.png" alt="IMG_6270-w320" /></p>
+
+<p>按正常的分析，功能类似的页面，我们是需要把他们封装起来，以此来减少重复工作。所以，我们理所当然的想到把上面的菜单封装，一开始，只有一两个页面，而且样式是相同的，我们只需处理逻辑就行了，页面都是一样的，但是，设计师突然给其中的一个页面的某一个 Cell 上面加上了一个对号，为了达成设计师的效果，我们不得不破坏原有的封装性，给 Cell 加上额外的东西。这是我在工作中真实遇到的问题。</p>
+
+<h2 id="设计思路">设计思路</h2>
+
+<p>那么，想要整体封装出一个菜单视图，我们只负责逻辑部分，是不大可能了。我们还需要把菜单的样式也交出去，让调用者自己实现。这种逻辑是不是很熟悉？是的 – <code class="highlighter-rouge">UITableView</code>.</p>
+
+<p>所以，我在设计<code class="highlighter-rouge">LYSheetController</code>大量参考了<code class="highlighter-rouge">UITableView</code>,其实内部也是由一个<code class="highlighter-rouge">UITableView</code> 来完成了大部分工作，我在设计<code class="highlighter-rouge">API</code>的时候，也刻意模仿了<code class="highlighter-rouge">UITableView</code>的<code class="highlighter-rouge">API</code>。为的就是想使用者能像使用系统的<code class="highlighter-rouge">UITableView</code>一样顺手。</p>
+
+<p>命名则是模仿了系统的<code class="highlighter-rouge">UIAlertController</code>,叫做了<code class="highlighter-rouge">LYSheetController</code>.目的同上。</p>
+
+<h2 id="lysheetcontroller">LYSheetController</h2>
+
+<p>此外， <code class="highlighter-rouge">LYSheetController</code>还支持高度自定义。 在<code class="highlighter-rouge">0.0.2</code>时候，把继承子类的自定义方式变为了遵守协议：<code class="highlighter-rouge">LYSheetModel</code> - 自定义数据Model,<code class="highlighter-rouge">LYSheetCell</code> - 自定义Cell，大大提高了灵活性。所以，你可以自定义任何Cell，<code class="highlighter-rouge">LYSheetCell</code>中没有任何必须要遵守的协议，只是给你提供了一些比较常用的，以方便你使用。<code class="highlighter-rouge">LYSheetModel</code>则不同，你必须实现<code class="highlighter-rouge">sheetStyle</code>属性，因为<code class="highlighter-rouge">LYSheetController</code>需要知道<code class="highlighter-rouge">sheetCell</code>是那种类型才能在复用池中取。</p>
+
+<p>具体可以参考<a href="https://github.com/Stu-JuLiaoY/LYSheetController">Demo</a></p>
+
+<h2 id="apis">APIs</h2>
+
+<p>对于<code class="highlighter-rouge">API</code>，在<code class="highlighter-rouge">LYSheetController.h</code> 文件中，几乎做了全部的注释。这里只挑几个重要的来讲。</p>
+
+<ul>
+  <li><code class="highlighter-rouge">gestureEnable</code>: <code class="highlighter-rouge">BOOL</code> 类型，点击空白处(除了<code class="highlighter-rouge">UITableView</code> 之外的区域) dismiss 的手势，默认是<code class="highlighter-rouge">YES</code>,并且 dismiss 的时候是带有动画的。</li>
+  <li><code class="highlighter-rouge">maxSheetHeight</code>: <code class="highlighter-rouge">float</code> 类型.<code class="highlighter-rouge">UITableView</code> 的最大高度。默认是屏幕高度的<code class="highlighter-rouge">2 / 3</code>.你可以设置你想要的值，但是为了效果最好不要超过屏幕的高度。这个值只会在你 <code class="highlighter-rouge">cell</code>的个数 * <code class="highlighter-rouge">cell</code> 的高度大于这个值的时候才会生效。否则的话，<code class="highlighter-rouge">UITableView</code>的高度总是等于<code class="highlighter-rouge">cell</code>的个数 * <code class="highlighter-rouge">cell</code> 的高度.</li>
+  <li><code class="highlighter-rouge">scrollEnableAuto</code>:<code class="highlighter-rouge">BOOL</code> 类型，<code class="highlighter-rouge">UITableView</code>是否可以滚动，默认值是<code class="highlighter-rouge">YES</code>，当<code class="highlighter-rouge">UITableView</code>的高度 &lt; <code class="highlighter-rouge">cell</code>的个数 * <code class="highlighter-rouge">cell</code> 的高度,它的值为<code class="highlighter-rouge">YES</code>，也就是可以滚动，否则的话，<code class="highlighter-rouge">UITableView</code>默认是不能滚动的。因为它是根据数据来动态改变的，所以叫它<code class="highlighter-rouge">Auto</code>.</li>
+  <li><code class="highlighter-rouge">scrollEnable</code>:<code class="highlighter-rouge">BOOL</code> 类型,和上面的<code class="highlighter-rouge">scrollEnableAuto</code>有很大的关系，他们相当于<code class="highlighter-rouge">幂等</code>的，<code class="highlighter-rouge">UITableView</code>是否能够滚动取决于你最后设置的一个属性。</li>
+  <li><code class="highlighter-rouge">dismissWhenSelected</code>:<code class="highlighter-rouge">BOOL</code> 类型,当我们选中某一个属性的时候，<code class="highlighter-rouge">LYSheetController</code>是否消失，默认是<code class="highlighter-rouge">YES</code>，因为我们在选中某一项的时候，很可能弹出一个<code class="highlighter-rouge">UIAlertContoller</code> 来显示结果，但是，<code class="highlighter-rouge">LYSheetController</code>已经是被<code class="highlighter-rouge">Present</code> 出来的.所以，此时<code class="highlighter-rouge">UIAlertContoller</code>会无法显示，解决方法就是先让<code class="highlighter-rouge">LYSheetController</code>消失，再去显示<code class="highlighter-rouge">UIAlertContoller</code>.即把这个属性设置为<code class="highlighter-rouge">YES</code>.</li>
+  <li><code class="highlighter-rouge">- (void)registSheetControllerCell: forStyle:</code>:注册你要自定义的<code class="highlighter-rouge">cell</code>，这个<code class="highlighter-rouge">cell</code> 必须是<code class="highlighter-rouge">LYSheetCell</code>的子类(写到这里，突然发现这样做不太好，应该采用<code class="highlighter-rouge">POP</code>)</li>
+</ul>
+
+<h2 id="todolist">TODOList</h2>
+
+<ul>
+  <li>[x] 增加对分组的支持。</li>
+  <li>[x] 把继承改为协议。</li>
+</ul>
+
+<p>issue : <a href="https://github.com/Stu-JuLiaoY/LYSheetController">LYSheetController</a></p>
+
+
+    </article>
+    
+    <div class="social-share-wrapper">
+        <div class="social-share"></div>
+    </div>
+    
+</div>
+
+<section class="author-detail">
+    <section class="post-footer-item author-card">
+        <div class="avatar">
+            <img src="/assets/img/profile.png" alt="">
+        </div>
+        <div class="author-name" rel="author">Ju Liaoyuan</div>
+        <div class="bio">
+            <p>iOS 搬砖，业余天文爱好者</p>
+        </div>
+        
+        <ul class="sns-links">
+            
+            <li>
+                <a href="//weibo.com/u/2738809475" target="_blank">
+                    <i class="iconfont icon-weibo"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//juejin.im/user/5872f9822f301e0057490c89" target="_blank">
+                    <i class="iconfont icon-juejin"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//github.com/liaoyuanng" target="_blank">
+                    <i class="iconfont icon-github"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//jianshu.com/u/f386d4a61d33" target="_blank">
+                    <i class="iconfont icon-jianshu"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="mailto:liaoyuan@imliaoyuan.com" target="_blank">
+                    <i class="iconfont icon-email"></i>
+                </a>
+            </li>
+            
+        </ul>
+        
+    </section>
+    <section class="post-footer-item read-next">
+        
+        <div class="read-next-item">
+            <a href="/2017/05/28/readingList.html" class="read-next-link"></a>
+            <section>
+                <span>Reading List</span>
+                <p>  TALK IS CHEAP</p>
+            </section>
+            
+            <div class="filter"></div>
+            <img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/aaron-burden-236415.jpg" alt="">
+            
+        </div>
+        
+         
+        <div class="read-next-item">
+            <a href="/2017/04/02/%E8%B8%8F%E9%9D%92-%E9%A1%BE%E6%9D%91%E5%85%AC%E5%9B%AD.html" class="read-next-link"></a>
+            <section>
+                <span>踏青-顾村公园</span>
+                <p></p>
+            </section>
+            
+            <div class="filter"></div>
+            <img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/11480597.jpg" alt="">
+            
+        </div>
+        
+    </section>
+    
+</section>
+
+<footer class="g-footer">
+    <section>Stay True © 2018</section>
+    <section>Powered by <a href="//jekyllrb.com">Jekyll</a> | <a href="https://github.com/liaoyuanng/StayTrue">Theme StayTrue</a>
+    <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></section>
+</footer>
+
+<script src="/assets/js/social-share.min.js"></script>
+<script>
+    socialShare('.social-share', {
+        sites: ['wechat','weibo','twitter','facebook'],
+        wechatQrcodeTitle: "分享到微信朋友圈",
+        wechatQrcodeHelper: '<p>扫码后分享😘</p>'
+    });
+</script>
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+/*写入自己的disqus信息*/
+s.src = '';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="/assets/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/assets/js/index.min.js"></script>
+</body>
+</html>

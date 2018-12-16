@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head><!-- post -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>记一次Runtime的巧用 - Stay True</title>
+    <meta name="author"  content="Ju Liaoyuan">
+    <meta name="description" content="记一次Runtime的巧用">
+    <meta name="keywords"  content="iOS">
+    <!-- Open Graph -->
+    <meta property="og:title" content="记一次Runtime的巧用 - Stay True">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:4000/2016/10/27/%E8%AE%B0%E4%B8%80%E6%AC%A1Runtime%E7%9A%84%E5%B7%A7%E7%94%A8.html">
+    <meta property="og:description" content="iOS 搬砖，业余天文爱好者">
+    <meta property="og:site_name" content="Stay True">
+    <link rel="stylesheet" href="//cdn.staticfile.org/normalize/6.0.0/normalize.min.css">
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_roc50gemkxpw4s4i.css">
+    <link rel="stylesheet" href= "/assets/css/github-markdown.css" | prepend: site.baseurl >
+    <link rel="stylesheet" href="/assets/css/styles/default.css" | prepend: site.baseurl>
+    <link rel="stylesheet" href= "/assets/css/share.min.css"  | prepend: site.baseurl>
+    <link rel="stylesheet" href= "/assets/css/app.min.css" | prepend: site.baseurl >
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/assets/img/favicon.ico">
+</head>
+<body>
+    <!--[if lt IE 10]>
+<div class="alert-danger" role="alert">你的浏览器实在太太太旧了，放学别走，升级完浏览器再说！<a target="_blank" class="alert-link" href="http://browsehappy.com">立即升级</a></div>
+<![endif]-->
+<input id="nm-switch" type="hidden" value="false">
+
+<header class="g-header">
+    <div class="g-logo">
+        <a href="/"></a>
+    </div>
+    <i id="menu-toggle" class="iconfont icon-menu"></i>
+    <nav class="g-nav">
+        <ul>
+            
+            <li><a href="/">home</a></li>
+            
+            <li><a href="/tags.html">tags</a></li>
+            
+        </ul>
+    </nav>
+</header>
+
+<header class="g-banner post-header post-pattern-circuitBoard bgcolor-default post-no-cover" data-theme="default">
+    <div class="post-wrapper">
+        <div class="post-tags">
+             
+            
+            <a href="/tags#iOS" class="post-tag">iOS</a>
+            
+            
+        </div>
+        <h1>记一次Runtime的巧用</h1>
+        <div class="post-meta">
+            <span class="post-meta-item"><i class="iconfont icon-author"></i><a href="http://localhost:4000" target="_blank" rel="author">Ju Liaoyuan</a></></span>
+            <time class="post-meta-item" datetime="16-10-27"><i class="iconfont icon-date"></i>28 Oct 2016</time>
+        </div>
+    </div>
+    
+</header>
+
+<div class="post-content">
+    
+    <article class="markdown-body">
+        <!-- more -->
+
+<h2 id="背景">背景</h2>
+<p>我们的视频直播是用的<code class="highlighter-rouge">大华乐橙</code>的解决方案，而他们近期出来个新的SDK，并且对老版SDK不兼容，而这周，终于把<code class="highlighter-rouge">大华乐橙</code>的新版SDK切换了，和这一周做的新的东西，一起提交审核了，并且今天也通过审核了。然后就和大华的技术支持联系，商讨数据的迁移。突然发现，我们用的是一个开发者帐号(该帐号下面创建了也只能创建一个应用，大华给了<code class="highlighter-rouge">App ID</code>和<code class="highlighter-rouge">App Secret</code>)来开发了两个App(用户版和商家版)，而旧版的SDK这样是可行的，但是新版的不行。这是因为在大华新版SDK那边请求接口的时候会验证一个<code class="highlighter-rouge">安全码</code>,这个安全码是由<code class="highlighter-rouge">Bundle identifier</code> 和 <code class="highlighter-rouge">Project name</code>组合的，他们的SDK内部会获取当前的App的<code class="highlighter-rouge">Bundle identifier</code>，<code class="highlighter-rouge">heProject name</code>,和开发者帐号创建应用时提供的安全码做比较，如果不一致，那么就直接拒绝请求。</p>
+
+<h2 id="解决过程">解决过程</h2>
+<p>互相了解了情况之后，双方都有点不知所措，就像后台隆哥说的：<code class="highlighter-rouge">奇葩碰奇葩了</code>。一开始，我们这边是一直在等待大华那边出方案，看看能不能在数据库做个映射，把两个开发者帐号关联起来。但是大华那边好像不太好弄，毕竟涉及到线上数据库的操作，可以理解。但是我们这样坐以待毙下去也不行，只能想想自己这边能不能做一些事情。</p>
+
+<p>首先，开始理清思路:</p>
+<ol>
+  <li>大华那边需要验证<code class="highlighter-rouge">安全码</code>,而这个<code class="highlighter-rouge">安全码</code>又是<code class="highlighter-rouge">Bundle identifier</code> 和 <code class="highlighter-rouge">Project name</code>组合，我们不可能去改工程的<code class="highlighter-rouge">Bundle identifier</code> 和 <code class="highlighter-rouge">Project name</code>，所以，修改工程这个方法不行。</li>
+  <li>那么我们这边可不可以给他们返回固定的<code class="highlighter-rouge">Bundle identifier</code> 和 <code class="highlighter-rouge">Project name</code>，来欺骗他们的验证，这个貌似是可以，但是这也有几个问题：
+    <ul>
+      <li>他们的SDK是<code class="highlighter-rouge">.a</code>静态库，所以不能改他们的代码。</li>
+      <li>那就只能去猜测他们可能会获取当前<code class="highlighter-rouge">Bundle identifier</code> 和 <code class="highlighter-rouge">Project name</code>的方法，在<code class="highlighter-rouge">iOS</code>中，获取<code class="highlighter-rouge">Bundle identifier</code> 和 <code class="highlighter-rouge">Project name</code>的方法，我知道的，也是最常用的就是：</li>
+    </ul>
+  </li>
+</ol>
+
+<pre><code class="language-ObjC">    NSString *identifier = [NSBundle mainBundle].bundleIdentifier;
+    NSString *projectName = [[NSBundle mainBundle].infoDictionary objectForKey:(NSString *)kCFBundleNameKey]; 
+</code></pre>
+
+<p>所以，我猜测他们可能也是用的这个方法，那么能不能劫持他们调用这个方法，给他们返回固定的值，由于劫持函数这一方面实在是不懂，所以这个没搞头。</p>
+
+<p><strong>在谷歌上面转了一圈，突然，发现了一个词:<code class="highlighter-rouge">method_exchangeImplementations</code>.哈，Bingo.</strong></p>
+
+<h2 id="方案确定method_exchangeimplementations">方案确定：<code class="highlighter-rouge">method_exchangeImplementations</code>.</h2>
+<p>在<code class="highlighter-rouge">SO</code>上面看到这个词，让我灵机一动，我可不可以去替换他们用来获取<code class="highlighter-rouge">Bundle identifier</code> 和 <code class="highlighter-rouge">Project name</code>的方法，说搞就搞，我在<code class="highlighter-rouge">AppDelegate.m</code>里面写了一下代码来测试：</p>
+
+<pre><code class="language-ObjC">- (void)changeIdentifierAndName {
+    method_exchangeImplementations(class_getInstanceMethod([NSBundle class], @selector(bundleIdentifier)), class_getInstanceMethod([self class], @selector(jly_bundleIdentifier)));
+    
+    method_exchangeImplementations(class_getInstanceMethod([NSBundle class], @selector(infoDictionary)), class_getInstanceMethod([self class], @selector(jly_bundleName)));
+}
+
+- (NSString *)jly_bundleIdentifier {
+    return @"com.xiongqi.XXXXX";
+}
+
+// 发现直接调用kCFBundleNameKey不行，然后就打印了这个Key，发现kCFBundleNameKey对应的是CFBundleName
+- (NSDictionary *)jly_bundleName {
+    return @{@"CFBundleName":@"XXXXXXX"};// 这里简化了infoDictionary，仅仅是为了测试。
+}
+</code></pre>
+
+<p>然后在<code class="highlighter-rouge">didFinishLaunchingWithOptions:</code>里面调用了<code class="highlighter-rouge">changeIdentifierAndName</code>.然后进入运行我们的App，打开店铺的直播，熟悉的画面出现在眼前，也就是我们通过<code class="highlighter-rouge">Runtime</code>来绕过了<code class="highlighter-rouge">大华</code>的所谓<code class="highlighter-rouge">安全码</code>检测！</p>
+
+<h2 id="感想">感想</h2>
+
+<p>有些事，还是要靠自己。</p>
+
+
+    </article>
+    
+    <div class="social-share-wrapper">
+        <div class="social-share"></div>
+    </div>
+    
+</div>
+
+<section class="author-detail">
+    <section class="post-footer-item author-card">
+        <div class="avatar">
+            <img src="/assets/img/profile.png" alt="">
+        </div>
+        <div class="author-name" rel="author">Ju Liaoyuan</div>
+        <div class="bio">
+            <p>iOS 搬砖，业余天文爱好者</p>
+        </div>
+        
+        <ul class="sns-links">
+            
+            <li>
+                <a href="//weibo.com/u/2738809475" target="_blank">
+                    <i class="iconfont icon-weibo"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//juejin.im/user/5872f9822f301e0057490c89" target="_blank">
+                    <i class="iconfont icon-juejin"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//github.com/liaoyuanng" target="_blank">
+                    <i class="iconfont icon-github"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//jianshu.com/u/f386d4a61d33" target="_blank">
+                    <i class="iconfont icon-jianshu"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="mailto:liaoyuan@imliaoyuan.com" target="_blank">
+                    <i class="iconfont icon-email"></i>
+                </a>
+            </li>
+            
+        </ul>
+        
+    </section>
+    <section class="post-footer-item read-next">
+        
+        <div class="read-next-item">
+            <a href="/2016/11/01/%E7%9F%A5%E9%81%93%E5%81%9A%E5%88%B0.html" class="read-next-link"></a>
+            <section>
+                <span>如何将KNOW-HOW转化为你想要的结果KNOW CAN DO！</span>
+                <p></p>
+            </section>
+            
+        </div>
+        
+         
+        <div class="read-next-item">
+            <a href="/2016/09/24/iOS10%E6%96%B0%E7%89%B9%E6%80%A7-%E9%80%9A%E7%9F%A5.html" class="read-next-link"></a>
+            <section>
+                <span>iOS10新特性 - 通知</span>
+                <p>iOS 10 中，苹果对通知进行了较大的更新。又有的玩了。</p>
+            </section>
+            
+            <div class="filter"></div>
+            <img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ios10.png" alt="">
+            
+        </div>
+        
+    </section>
+    
+</section>
+
+<footer class="g-footer">
+    <section>Stay True © 2018</section>
+    <section>Powered by <a href="//jekyllrb.com">Jekyll</a> | <a href="https://github.com/liaoyuanng/StayTrue">Theme StayTrue</a>
+    <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></section>
+</footer>
+
+<script src="/assets/js/social-share.min.js"></script>
+<script>
+    socialShare('.social-share', {
+        sites: ['wechat','weibo','twitter','facebook'],
+        wechatQrcodeTitle: "分享到微信朋友圈",
+        wechatQrcodeHelper: '<p>扫码后分享😘</p>'
+    });
+</script>
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+/*写入自己的disqus信息*/
+s.src = '';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="/assets/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/assets/js/index.min.js"></script>
+</body>
+</html>

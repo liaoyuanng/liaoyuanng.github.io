@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head><!-- post -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSURLSession 简述 - Stay True</title>
+    <meta name="author"  content="Ju Liaoyuan">
+    <meta name="description" content="NSURLSession 简述">
+    <meta name="keywords"  content="iOS">
+    <!-- Open Graph -->
+    <meta property="og:title" content="NSURLSession 简述 - Stay True">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:4000/2018/02/12/NSURLSession.html">
+    <meta property="og:description" content="iOS 搬砖，业余天文爱好者">
+    <meta property="og:site_name" content="Stay True">
+    <link rel="stylesheet" href="//cdn.staticfile.org/normalize/6.0.0/normalize.min.css">
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_roc50gemkxpw4s4i.css">
+    <link rel="stylesheet" href= "/assets/css/github-markdown.css" | prepend: site.baseurl >
+    <link rel="stylesheet" href="/assets/css/styles/default.css" | prepend: site.baseurl>
+    <link rel="stylesheet" href= "/assets/css/share.min.css"  | prepend: site.baseurl>
+    <link rel="stylesheet" href= "/assets/css/app.min.css" | prepend: site.baseurl >
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/assets/img/favicon.ico">
+</head>
+<body>
+    <!--[if lt IE 10]>
+<div class="alert-danger" role="alert">你的浏览器实在太太太旧了，放学别走，升级完浏览器再说！<a target="_blank" class="alert-link" href="http://browsehappy.com">立即升级</a></div>
+<![endif]-->
+<input id="nm-switch" type="hidden" value="false">
+
+<header class="g-header">
+    <div class="g-logo">
+        <a href="/"></a>
+    </div>
+    <i id="menu-toggle" class="iconfont icon-menu"></i>
+    <nav class="g-nav">
+        <ul>
+            
+            <li><a href="/">home</a></li>
+            
+            <li><a href="/tags.html">tags</a></li>
+            
+        </ul>
+    </nav>
+</header>
+
+<header class="g-banner post-header post-pattern-circuitBoard bgcolor-default " data-theme="default">
+    <div class="post-wrapper">
+        <div class="post-tags">
+             
+            
+            <a href="/tags#iOS" class="post-tag">iOS</a>
+            
+            
+        </div>
+        <h1>NSURLSession 简述</h1>
+        <div class="post-meta">
+            <span class="post-meta-item"><i class="iconfont icon-author"></i><a href="http://localhost:4000" target="_blank" rel="author">Ju Liaoyuan</a></></span>
+            <time class="post-meta-item" datetime="18-02-12"><i class="iconfont icon-date"></i>12 Feb 2018</time>
+        </div>
+    </div>
+    
+    <div class="filter"></div>
+    <div class="post-cover" style="background: url('https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/urlsession.png') center no-repeat; background-size: cover;">
+    
+</header>
+
+<div class="post-content">
+    
+    <article class="markdown-body">
+        <!--more-->
+
+<p><code class="highlighter-rouge">NSURLSession</code>是<code class="highlighter-rouge">Apple</code>在<code class="highlighter-rouge">iOS 7</code>推出的，用于取代<code class="highlighter-rouge">NSURLConnection</code>的类。它支持<code class="highlighter-rouge">HTTP/1.1</code>和<code class="highlighter-rouge">HTTP/2</code>,增加了<code class="highlighter-rouge">ATS</code>,支持<code class="highlighter-rouge">HSTS</code>，</p>
+
+<p>它创建并管理一个网络请求，可以使用<code class="highlighter-rouge">[NSURLSession sharedSession]</code>来初始化，这样默认使用的是全局的<code class="highlighter-rouge">NSURLCache</code>，<code class="highlighter-rouge">NSHTTPCookieStorage</code>，<code class="highlighter-rouge">NSURLCredentialStorage</code>。当然，这个也可以更改。<code class="highlighter-rouge">NSURLSession</code>把网络请求抽象成一个个<code class="highlighter-rouge">Task</code>，与之对应的是<code class="highlighter-rouge">NSURLSessionTask</code>,我们先从它讲起。</p>
+
+<h1 id="nsurlsessiontask">NSURLSessionTask</h1>
+
+<p>这是一个抽象类，提供了一系列的属性和方法，但本身不能直接使用。系统默认提供了四个它的子类:</p>
+
+<ul>
+  <li>NSURLSessionDataTask</li>
+  <li>NSURLSessionUploadTask</li>
+  <li>NSURLSessionDownloadTask</li>
+  <li>NSURLSessionStreamTask</li>
+</ul>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15179763063131.jpg" alt="" /></p>
+
+<p>从名字来看就能知道，每个<code class="highlighter-rouge">dataTask</code>的作用。我们最经常使用的，便是<code class="highlighter-rouge">NSURLSessionDataTask</code>。</p>
+
+<p>其子类的初始化，一般是由<code class="highlighter-rouge">NSURLSession</code>完成并返回的。</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15179061251110.jpg" alt="" /></p>
+
+<p>所以，一个简单的 POST 请求，大概就是这个样子。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:yourURL];
+request.HTTPMethod = @"POST";
+
+NSURLSession *session = [NSURLSession sharedSession];
+NSURLSessionDataTask *task = [session dataTaskWithRequest:request.copy completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+   
+}];
+    
+[task resume];
+</code></pre></div></div>
+
+<h2 id="nsurlsessiondownloadtask">NSURLSessionDownloadTask</h2>
+
+<p>其实，<code class="highlighter-rouge">NSURLSessionDataTask</code>一定程度上完全可以取代<code class="highlighter-rouge">NSURLSessionDownloadTask</code>，与<code class="highlighter-rouge">NSURLSeesionDownloadTask</code>相比，<code class="highlighter-rouge">NSURLSessionDataTask</code>少了后台下载功能(Background Sessions)。除此之外，并无差异。<a href="https://stackoverflow.com/questions/20604910/what-is-difference-between-nsurlsessiondatatask-vs-nsurlsessiondownloadtask/20605116">看这里了解更多</a></p>
+
+<p><strong>使用 NSURLSessionDataTask 下载</strong></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:ly_urlcreate(@"sxdcq.m4a")];
+request.HTTPMethod = @"POST";
+    
+NSURLSessionDataTask *dataTask = [self.urlSession dataTaskWithRequest:request.copy completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+   if (!error) {
+       NSError *writeError = nil;
+       NSString *document = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject;
+       BOOL result = [data writeToFile:[NSString stringWithFormat:@"%@/(data_task)%@",document,response.suggestedFilename] options:NSDataWritingAtomic error:&amp;writeError];
+       if (result) {
+           [self showMessage:@"download success(DataTask)"];
+       } else {
+           [self showMessage:writeError.description];
+       }
+   } else {
+       [self showMessage:error.description];
+   }
+}];
+[dataTask resume];
+</code></pre></div></div>
+<p>下载的文件在沙盒中：
+<img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15179748779860.jpg" alt="" /></p>
+
+<p><strong>使用 NSURLSessionDownloadTask 下载</strong></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:ly_urlcreate(@"sxdcq.m4a")];
+request.HTTPMethod = @"POST";
+    
+NSURLSessionDownloadTask *downloadTask = [self.urlSession downloadTaskWithRequest:request.copy completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+   if (!error) {
+       NSError *moveError = nil;
+       NSString *document = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject;
+       NSURL *targetURL = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/(download_task)%@",document,response.suggestedFilename]];
+       BOOL result = [[NSFileManager defaultManager] moveItemAtURL:location toURL:targetURL error:&amp;moveError];
+       if (result) {
+           [self showMessage:@"download success(Download Task)"];
+       } else {
+           [self showMessage:moveError.description];
+       }
+   } else {
+       [self showMessage:error.description];
+   }
+}];
+    
+[downloadTask resume];
+</code></pre></div></div>
+
+<p>下载的文件在沙盒中：</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15179752452619.jpg" alt="" /></p>
+
+<h2 id="nsurlsessionuploadtask">NSURLSessionUploadTask</h2>
+
+<p>使用<code class="highlighter-rouge">UploadTask</code>上传文件。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:yourURL];
+    
+NSURLSessionUploadTask *upload = [self.urlSession uploadTaskWithRequest:request.copy fromData:[NSData data] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+   
+}];
+    
+[upload resume];
+</code></pre></div></div>
+
+<p>但是，在实际应用中，这样写往往是行不通的，因为后端大多采用的都是<code class="highlighter-rouge">multipart/form-data</code>，所以，我们需要将<code class="highlighter-rouge">Content-Type</code>设置成<code class="highlighter-rouge">multipart/form-data</code>并使用<code class="highlighter-rouge">boundary</code>来分割多个部分。为什么我们在项目中上传文件没有这么麻烦，是因为一般我们都是用了<code class="highlighter-rouge">AFNetworking</code>来做网络请求，这部分<code class="highlighter-rouge">AFN</code>帮我们做了。</p>
+
+<h2 id="nsurlsessionstreamtask">NSURLSessionStreamTask</h2>
+
+<p>这个是很少用到的，用以建立 TCP 连接。我自己也没使用过╮(╯▽╰)╭</p>
+
+<h2 id="后台任务">后台任务</h2>
+
+<p>使用<code class="highlighter-rouge">backgroundSessionConfigurationWithIdentifier</code>可以创建一个后台任务(只能是上传或者下载，且不能是<code class="highlighter-rouge">DataTask</code>方式)，保证 App 退出到后台任务依然能够进行。</p>
+
+<p>当任务完成后，会调用<code class="highlighter-rouge">- application: handleEventsForBackgroundURLSession: completionHandler:</code>和<code class="highlighter-rouge">- URLSessionDidFinishEventsForBackgroundURLSession</code>，你可以在这里进行你的逻辑处理。</p>
+
+<h2 id="任务的操作取消挂起恢复">任务的操作(取消，挂起，恢复)</h2>
+
+<h3 id="任务的取消">任务的取消</h3>
+
+<p>取消一个任务，有多种方法，你可以直接把<code class="highlighter-rouge">session</code>设置为无效：</p>
+
+<ul>
+  <li>finishTasksAndInvalidate</li>
+  <li>invalidateAndCancel</li>
+</ul>
+
+<p>需要注意的是，<strong>如果你使用<code class="highlighter-rouge">[NSURLSession sharedSession]</code>这种方式初始化的<code class="highlighter-rouge">session</code>，不能使用<code class="highlighter-rouge">finishTasksAndInvalidate</code>或者<code class="highlighter-rouge">invalidateAndCancel</code>来取消。</strong></p>
+
+<blockquote>
+  <p>-finishTasksAndInvalidate and -invalidateAndCancel do not
+have any effect on the shared session singleton.</p>
+</blockquote>
+
+<p>其中，<code class="highlighter-rouge">finishTasksAndInvalidate</code>取消的是未创建的任务，不能取消正在进行的任务，它会等待当前正在执行的任务执行完。而<code class="highlighter-rouge">invalidateAndCancel</code>则是取消所有状态的任务，无论它是否正在执行。如果我们<code class="highlighter-rouge">invalidate session</code>，如果再次使用这个<code class="highlighter-rouge">session</code>执行任务，就会发生崩溃。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Terminating app due to uncaught exception 'NSGenericException', reason: 'Task created in a session that has been invalidated'
+</code></pre></div></div>
+
+<p>除了直接对<code class="highlighter-rouge">seesion</code>操作，我们也可以对某个<code class="highlighter-rouge">Task</code>执行<code class="highlighter-rouge">cancel</code>操作，这样的好处是我们之后仍然可以使用这个<code class="highlighter-rouge">session</code>来执行<code class="highlighter-rouge">task</code>。我们可以通过<code class="highlighter-rouge">getTasksWithCompletionHandler</code>或者<code class="highlighter-rouge">getAllTasksWithCompletionHandler</code>获取某个<code class="highlighter-rouge">session</code>的所有<code class="highlighter-rouge">task</code>，然后根据<code class="highlighter-rouge">taskIdentifier</code>来找出要取消的任务。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[self.urlSession getTasksWithCompletionHandler:^(NSArray&lt;NSURLSessionDataTask *&gt; * _Nonnull dataTasks, NSArray&lt;NSURLSessionUploadTask *&gt; * _Nonnull uploadTasks, NSArray&lt;NSURLSessionDownloadTask *&gt; * _Nonnull downloadTasks) {
+   for (NSURLSessionDataTask *task in dataTasks) {
+       [task cancel];
+   }
+
+   for (NSURLSessionUploadTask *uploadTask in uploadTasks) {
+       [uploadTask cancel];
+   }
+
+   for (NSURLSessionDownloadTask *downloadTask in downloadTasks) {
+       [downloadTask cancel];
+   }
+}];
+</code></pre></div></div>
+
+<h3 id="任务的挂起和恢复">任务的挂起和恢复</h3>
+
+<p>和取消不同的是，挂起和恢复不能对<code class="highlighter-rouge">seesion</code>操作，所以，我们只能通过最后一个方法，遍历<code class="highlighter-rouge">session</code>所有的<code class="highlighter-rouge">task</code>，使用<code class="highlighter-rouge">NSURLSessionTask</code>的<code class="highlighter-rouge">suspend</code>和<code class="highlighter-rouge">resume</code>方法。</p>
+
+<h2 id="nsurlsessiondelegate">NSURLSessionDelegate</h2>
+
+<p><code class="highlighter-rouge">NSURLSessionDelegate</code>是与整个<code class="highlighter-rouge">URL Session</code>相关的协议，也就是说，不管你用<code class="highlighter-rouge">dataTask</code>、<code class="highlighter-rouge">downloadTask</code>、<code class="highlighter-rouge">uploadTask</code>，这个协议的方法都可以使用。基于它之上，还有一些扩展的子协议：</p>
+
+<ul>
+  <li>NSURLSessionTaskDelegate</li>
+  <li>NSURLSessionDataDelegate</li>
+  <li>NSURLSessionDownloadDelegate</li>
+  <li>NSURLSessionStreamDelegate</li>
+</ul>
+
+<p>他们的关系如下：</p>
+
+<p><img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15179945045619.jpg" alt="" /></p>
+
+<h3 id="nsurlsessiondelegate-1">NSURLSessionDelegate</h3>
+
+<p><strong>如果你想使用 Delegate，那么就不能使用 seesion 的 Block 版本</strong></p>
+
+<p>至于每个协议里面的方法，网上很容易就能找到，不再过多赘述。</p>
+
+<h2 id="结语">结语</h2>
+
+<p>到这里, 基本上<code class="highlighter-rouge">NSURLSession</code>就讲完了，里面都是一些很基础的，主要是为<code class="highlighter-rouge">AFNetworking</code>这篇文章里提到的知识点做一个铺垫。你可以在这里找到文中的<a href="https://github.com/liaoyuanng/Learn-AFNetworking/tree/master/NSURLSessionDemo">Demo</a></p>
+
+
+    </article>
+    
+    <div class="social-share-wrapper">
+        <div class="social-share"></div>
+    </div>
+    
+</div>
+
+<section class="author-detail">
+    <section class="post-footer-item author-card">
+        <div class="avatar">
+            <img src="/assets/img/profile.png" alt="">
+        </div>
+        <div class="author-name" rel="author">Ju Liaoyuan</div>
+        <div class="bio">
+            <p>iOS 搬砖，业余天文爱好者</p>
+        </div>
+        
+        <ul class="sns-links">
+            
+            <li>
+                <a href="//weibo.com/u/2738809475" target="_blank">
+                    <i class="iconfont icon-weibo"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//juejin.im/user/5872f9822f301e0057490c89" target="_blank">
+                    <i class="iconfont icon-juejin"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//github.com/liaoyuanng" target="_blank">
+                    <i class="iconfont icon-github"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="//jianshu.com/u/f386d4a61d33" target="_blank">
+                    <i class="iconfont icon-jianshu"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="mailto:liaoyuan@imliaoyuan.com" target="_blank">
+                    <i class="iconfont icon-email"></i>
+                </a>
+            </li>
+            
+        </ul>
+        
+    </section>
+    <section class="post-footer-item read-next">
+        
+        <div class="read-next-item">
+            <a href="/2018/02/20/AFNetworking.html" class="read-next-link"></a>
+            <section>
+                <span>AFNetworking 源码分析</span>
+                <p></p>
+            </section>
+            
+            <div class="filter"></div>
+            <img src="https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/AFNetworking.png" alt="">
+            
+        </div>
+        
+         
+        <div class="read-next-item">
+            <a href="/2018/01/17/swift-try.html" class="read-next-link"></a>
+            <section>
+                <span>Swift - try, try?, try!</span>
+                <p></p>
+            </section>
+            
+        </div>
+        
+    </section>
+    
+</section>
+
+<footer class="g-footer">
+    <section>Stay True © 2018</section>
+    <section>Powered by <a href="//jekyllrb.com">Jekyll</a> | <a href="https://github.com/liaoyuanng/StayTrue">Theme StayTrue</a>
+    <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></section>
+</footer>
+
+<script src="/assets/js/social-share.min.js"></script>
+<script>
+    socialShare('.social-share', {
+        sites: ['wechat','weibo','twitter','facebook'],
+        wechatQrcodeTitle: "分享到微信朋友圈",
+        wechatQrcodeHelper: '<p>扫码后分享😘</p>'
+    });
+</script>
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+/*写入自己的disqus信息*/
+s.src = '';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="/assets/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="/assets/js/index.min.js"></script>
+</body>
+</html>
