@@ -14,7 +14,7 @@ nav:
 author: 'Ju Liaoyuan'
 nickname: 'Leo'
 bio: 'iOS 搬砖，业余天文爱好者'
-avatar: '/assets/img/profile.png'
+avatar: 'assets/img/profile.png'
 
 # Search
 search: true
