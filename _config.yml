@@ -3,7 +3,7 @@ title: 'Stay True'
 description: 'iOS 搬砖，业余天文爱好者'
 keyword: 'Stay True, Ju liaoyuan, iOS'
 url: 'imliaoyuan.com' # your host
-baseurl: '/'
+baseurl: ''
 
 # Navigation links
 nav:
@@ -14,7 +14,7 @@ nav:
 author: 'Ju Liaoyuan'
 nickname: 'Leo'
 bio: 'iOS 搬砖，业余天文爱好者'
-avatar: 'assets/img/profile.png'
+avatar: '/assets/img/profile.png'
 
 # Search
 search: true
@@ -41,7 +41,7 @@ sns:
   juejin: '//juejin.im/user/5872f9822f301e0057490c89'
   github: '//github.com/liaoyuanng'
   jianshu: '//jianshu.com/u/f386d4a61d33'
-  email: 'mailto:liaoyuan@imliaoyuan.com'
+  email: 'mailto:liaoyuanng@gmail.com'
 # Tags 设置标签
 recommend-tags: true # whether or not display recommend-tags on the sidebar
 recommend-condition-size: 12 # a tag will be recommended if the size of it is more than this value
