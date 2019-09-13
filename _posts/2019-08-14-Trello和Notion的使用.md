@@ -1,4 +1,3 @@
-
 ---
 layout: post
 title: Trello和Notion的使用
@@ -7,8 +6,6 @@ cover: 'https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/trello%26notion
 ---
 
 <!--more-->
-
-# Trello和Notion的使用
 
 ### Trello
 
