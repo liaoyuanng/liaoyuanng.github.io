@@ -2,7 +2,7 @@
 layout: post
 title: 短视频功能制作优化方案
 tags: iOS
-cover: "https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/makevideo.png"
+cover: "https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/makevideo.jpg"
 ---
 
 <!--more-->
