@@ -7,6 +7,7 @@ baseurl: ''
 
 # Navigation links
 nav:
+  🌟TimeCapsule: 'https://www.notion.so/liaoyuan/7bd2ceb734a448aba9d7340ca0f440ed?v=e7b64585a64e41f4a1f44ea5f546d9d7'
   home: '/'
   tags: '/tags.html'
 
@@ -27,7 +28,7 @@ disqus: false
 
 # Share
 social-share: true
-social-share-items: ['wechat','weibo', 'twitter', 'facebook']
+social-share-items: ['wechat','weibo', 'twitter']
 
 # theme color 主题皮肤
 theme-color: 'default'  # pink or default
@@ -37,10 +38,11 @@ postPatterns: 'circuitBoard'
 
 # SNS settings 配置社交网站url: weibo, zhihu, twitter, instagram, juejin, github, douban, facebook, dribble, uicn, jianshu, medium, linkedin
 sns:
-  weibo: '//weibo.com/u/2738809475'
-  juejin: '//juejin.im/user/5872f9822f301e0057490c89'
+  # weibo: '//weibo.com/u/2738809475'
+  # juejin: '//juejin.im/user/5872f9822f301e0057490c89'
+  instagram: 'https://www.notion.so/liaoyuan/7bd2ceb734a448aba9d7340ca0f440ed?v=e7b64585a64e41f4a1f44ea5f546d9d7'
   github: '//github.com/liaoyuanng'
-  jianshu: '//jianshu.com/u/f386d4a61d33'
+  # jianshu: '//jianshu.com/u/f386d4a61d33'
   email: 'mailto:liaoyuanng@gmail.com'
 # Tags 设置标签
 recommend-tags: true # whether or not display recommend-tags on the sidebar
