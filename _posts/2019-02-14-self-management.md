@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 读了两本帮助开启心智的书
+title: 读了两本时间管理类的书
 tags: 读书
 cover: 'https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/bulb.png'
 ---
