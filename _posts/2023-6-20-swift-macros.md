@@ -655,7 +655,7 @@ context.diagnose(diag)
 
 无论是错误信息，还是修复方案，都是我们自己提供的。看到这里，有没有一种创造语言的成就感？
 
-最后，判断是否是 `UIViewController` 的子类。根据 `declaration` 的结构，我们只需要按照层级，把 `inheritanceClause` ****节点的`inheritedTypeCollection` ****容器中第一个元素解析出来(因为从语法上，类名后第一个(Class)是其父类)。
+最后，判断是否是 `UIViewController` 的子类。根据 `declaration` 的结构，我们只需要按照层级，把 `inheritanceClause` **节点的`inheritedTypeCollection` ** 容器中第一个元素解析出来(因为从语法上，类名后第一个(Class)是其父类)。
 
 ```swift
 let name = classDecl.inheritanceClause?.inheritedTypeCollection.first?.typeName.as(TypeSyntax.self).description
@@ -673,9 +673,9 @@ guard let classDecl = declaration.as(ClassDeclSyntax.self),
 }
 ```
 
-> **Discussion**
+> Discussion
 
-由于 SwiftSyntax 只是负责语法解析，并不能知道类型的整个继承关系（[Reply](https://forums.swift.org/t/how-to-retrieve-the-inheritance-hierarchy-of-a-type/65649)）。所以，这里的方法有点 trick，只做演示用。
+> 由于 SwiftSyntax 只是负责语法解析，并不能知道类型的整个继承关系（[Reply](https://forums.swift.org/t/how-to-retrieve-the-inheritance-hierarchy-of-a-type/65649)）。所以，这里的方法有点 trick，只做演示用。
 > 
 
 # 总结
@@ -684,8 +684,8 @@ guard let classDecl = declaration.as(ClassDeclSyntax.self),
 
 # 参考
 
-****[Write Swift macros](https://developer.apple.com/wwdc23/10166)****
+**[Write Swift macros](https://developer.apple.com/wwdc23/10166)**
 
-****[Expand on Swift macros](https://developer.apple.com/videos/play/wwdc2023/10167/)****
+**[Expand on Swift macros](https://developer.apple.com/videos/play/wwdc2023/10167/)**
 
 [源码下载](https://github.com/liaoyuanng/swift-macro-demo)
