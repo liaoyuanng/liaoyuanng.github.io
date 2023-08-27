@@ -65,4 +65,4 @@ kramdown:
 RSS: true
 
 # Plugins
-plugins: [jekyll-paginate, jekyll-seo-tag]
+plugins: [jekyll-paginate, jekyll-seo-tag, jekyll-sitemap]
