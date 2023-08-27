@@ -1,8 +1,8 @@
 # Site settings 配置站点
 title: 'Stay True'
-description: 'iOS 搬砖，业余天文爱好者'
-keyword: 'Stay True, Ju liaoyuan, iOS'
-url: 'imliaoyuan.com' # your host
+description: 'iOS developer, astronomy enthusiast'
+keyword: 'Stay True, liaoyuanng, iOS'
+url: 'liaoyuanng.xyz' # your host
 baseurl: ''
 
 # Navigation links
@@ -12,7 +12,7 @@ nav:
   tags: '/tags.html'
 
 # Author 配置博主信息
-author: 'Ju Liaoyuan'
+author: 'liaoyuanng'
 nickname: 'Leo'
 bio: 'iOS 搬砖，业余天文爱好者'
 avatar: 'assets/img/profile.png'
@@ -54,6 +54,8 @@ paginate_path: 'page:num'
 exclude: ['node_modules', 'dev', 'package.json', 'gulpfile.js', '.gitignore', 'README.md']
 timezone: Asia/Shanghai
 
+permalink: /:categories/:title/
+
 # Markdown
 markdown: kramdown
 highlighter: rouge
@@ -63,4 +65,4 @@ kramdown:
 RSS: true
 
 # Plugins
-plugins: [jekyll-paginate]
+plugins: [jekyll-paginate, jekyll-seo-tag]
