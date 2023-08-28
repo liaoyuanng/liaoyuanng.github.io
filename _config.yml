@@ -9,7 +9,7 @@ baseurl: ''
 nav:
   🌟TimeCapsule: 'https://www.notion.so/liaoyuan/7bd2ceb734a448aba9d7340ca0f440ed?v=e7b64585a64e41f4a1f44ea5f546d9d7'
   home: '/'
-  tags: '/tags.html'
+  tags: '/tags'
 
 # Author 配置博主信息
 author: 'liaoyuanng'
