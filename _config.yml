@@ -63,4 +63,4 @@ kramdown:
 RSS: true
 
 # Plugins
-plugins: [jekyll-paginate, jekyll-seo-tag, jekyll-sitemap]
+plugins: [jekyll-paginate, jekyll-seo-tag, jekyll-last-modified-at, jekyll-sitemap]
