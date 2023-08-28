@@ -53,7 +53,7 @@ OK，让我们带着好奇心，点击这个方法，看看里面到底是怎么
 
 恩，这里调用了另外一个方法，创建了一个`NSURLSessionDataTask`类的实例，并且调用了`- resume`开始任务。
 
-看到这里，我们已经能够知道，`AFNetworking`是对`NSURLSession`的封装(3.0版本)，那么，如果我们这里，如果对`NSURLSeesion`很陌生，恐怕很难再进行下去。所以，我们要[补一补 NSURLSession](https://imliaoyuan.com/2018/02/12/NSURLSession.html) 的知识。
+看到这里，我们已经能够知道，`AFNetworking`是对`NSURLSession`的封装(3.0版本)，那么，如果我们这里，如果对`NSURLSeesion`很陌生，恐怕很难再进行下去。所以，我们要[补一补 NSURLSession]({% post_url 2018-02-12-NSURLSession %}) 的知识。
 
 让我们继续看下去，看看`dataTaskWithHTTPMethod...`这个方法的实现：
 
@@ -112,7 +112,7 @@ OK，让我们带着好奇心，点击这个方法，看看里面到底是怎么
 字符串拼接完成后，会有一段对他们的编码的处理：
 ![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/15196979409692.jpg)
 
-这段代码就是将各种非英文字符串转化为英文。对于这部分，你可以看看[作者的解释](http://nshipster.com/cfstringtransform/)，亦或看下[我的总结](https://imliaoyuan.com/2018/01/01/CFStringTransform-%E5%AD%97%E7%AC%A6%E8%BD%AC%E6%8D%A2.html)
+这段代码就是将各种非英文字符串转化为英文。对于这部分，你可以看看[作者的解释](http://nshipster.com/cfstringtransform/)，亦或看下[我的总结]({% post_url 2018-01-01-CFStringTransform 字符转换 %})
 
 
 默认的请求头到这里就结束了，如果你要额外的设置请求头，用下面的方法：
@@ -121,7 +121,7 @@ OK，让我们带着好奇心，点击这个方法，看看里面到底是怎么
 [manager.requestSerializer setValue:value forHTTPHeaderField:field];
 ```
 
-如果你对`HTTP`也不太熟悉，对各种`首部字段`没有仔细了解，那么强烈推荐你看下《图解 HTTP》这本书，内容不多，也不深入，非常适合了解 HTTP。我这里也做了一个笔记，你也可以先大概了解下：[读《图解 HTTP》笔记](https://imliaoyuan.com/2018/01/11/noteforhttp.html)
+如果你对`HTTP`也不太熟悉，对各种`首部字段`没有仔细了解，那么强烈推荐你看下《图解 HTTP》这本书，内容不多，也不深入，非常适合了解 HTTP。我这里也做了一个笔记，你也可以先大概了解下：[读《图解 HTTP》笔记]({% post_url 2018-01-11-noteforhttp %})
 
 言归正传，请求头的设置到这里就结束了，我们继续看下请求体部分。
 
