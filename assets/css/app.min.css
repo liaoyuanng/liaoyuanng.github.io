@@ -137,14 +137,15 @@ a {
 	font-size:42px;
 	font-family:Arial,PingFang-Regular,'Hiragino Sans GB','Microsoft YaHei','WenQuanYi Micro Hei',sans-serif;
 	font-weight:700;
-	letter-spacing:2px;
 	line-height:52px
 }
 .home-banner h3 {
-	font-size:20px;
+	font-size:22px;
 	font-weight:400;
-	letter-spacing:10px;
-	margin-top:8px
+	word-spacing:8px;
+	letter-spacing:2px;
+	margin-top:8px;
+	opacity: 0.5
 }
 .home-banner .header-img {
 	display:block;

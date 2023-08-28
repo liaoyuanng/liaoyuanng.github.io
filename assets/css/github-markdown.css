@@ -512,49 +512,46 @@ li p:nth-child(2) {
 .markdown-body h1 {
   margin: 0px 0px 10px 0px;
   font-size: 32px;
-  font-family: Arial;
-  font-weight: 400;
-}
-
-.markdown-body h2 {
-  margin: 0px 0px 10px 0px;
-  font-size: 28px;
   color:#42b983;
   position: relative;
   font-family:Arial;
   font-weight: 400;
 }
 
-.markdown-body h2::before {
+.markdown-body h1::before {
   content: "#";
   color: #42b983;
   position: absolute;
   left: -0.75em;
-  top: -3.5px;
-  font-size: 1.2em;
+  bottom: 1px;
+  font-size: 30px;
   font-family: "Consolas";
+}
+
+.markdown-body h2 {
+  margin: 0px 0px 10px 0px;
+  font-size: 26px;
+  font-family: Arial;
+  font-weight: 400;
 }
 
 .markdown-body h3 {
   margin: 0px 0px 10px 0px;
-  font-size: 26px;
-  color:#42b983;
+  font-size: 24px;
   position: relative;
   font-weight: 400;
 }
 
 .markdown-body h4 {
   margin: 0px 0px 10px 0px;
-  font-size: 24px;
-  color:#42b983;
+  font-size: 22px;
   position: relative;
   font-weight: 400;
 }
 
 .markdown-body h5 {
   margin: 0px 0px 10px 0px;
-  font-size: 22px;
-  color:#42b983;
+  font-size: 20px;
   position: relative;
   font-weight: 400;
 }
@@ -562,7 +559,6 @@ li p:nth-child(2) {
 .markdown-body h6 {
   margin: 0px 0px 10px 0px;
   font-size: 20px;
-  color:#42b983;
   position: relative;
   font-weight: 400;
 }
