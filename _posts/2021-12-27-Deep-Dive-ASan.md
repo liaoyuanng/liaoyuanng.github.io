@@ -2,8 +2,9 @@
 layout: post
 title: Deep Dive Address Sanitizer
 date: 2021-12-27
-tags: "技术之内"
-cover: 'https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/asan_cover.png'
+description: "Address Sanitizer, ASan, Address Sanitizer 使用, Address Sanitizer 原理"
+tags: "技术之内, iOS"
+cover: 'https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/asan_cover.webp'
 ---
 
 <!--more-->
@@ -26,7 +27,7 @@ cover: 'https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/a
 
 2012 年，Google 发布了一篇论文：《AddressSanitizer: A Fast Address Sanity Checker》。介绍了一种新的内存检测方法，让上面的问题得到了很大的改进。截止到目前，AddressSanitizer 已被广泛应用到各种语言：C、C++、Objective-C、Java 等。甚至一些 IDE 直接集成了该功能，开发者只需点一下按钮就可以享受到这项技术。如在Xcode中只需点击下按钮后就可以使用（注意：需要重新编译工程）。
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/xcode_asn.png)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/xcode_asn.png?imageMogr2/format/webp/quality/80)
 *Xcode 中只需点击下按钮后就可以使用(需要重新编译工程)*
 
 按下按钮后，到底发生了一些什么事情呢？让我们一步步揭开背后的秘密。
@@ -69,12 +70,12 @@ AddressSanitizer(以下统一简称为 ASan )的实现，主要分为两大部�
 
 了解了 Shadow Memory 的概念，我们可以实现对进程内存状态的记录。假如内存块 M1 的状态被记录在了 S1 中，那么，我们在访问 M1 的时候，先找到记录 M1 状态的 S1，检查 M1 的状态，如果已经被标记为了不可访问(Unaddressable)，那么我们就可以抛出异常。概念不难理解。我们称这种方式为直接映射(Direct Mapping)。
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/mem_mapping.png)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/mem_mapping.png?imageMogr2/format/webp/quality/80)
 *SX 是对 MX 状态的记录*
 
 但是，直接映射存在一个明显的问题，由于系统不会给 Shadow Memory 分配额外的内存空间，所以需要在当前进程的内存空间中划分一块区域用来存储 Shadow Memory 的信息。Shadow Memory 的内存占用和进程使用的内存大小一样。如果进程使用了 N Bytes 的内存空间，那么我们就需要用 N Bytes 的 Shadow Memory 来记录。单个进程总的最大内存空间又是固定的，从而挤占了正常的使用。也正因为如此，在Xcode中，如果打开了 Address Sanitizer，Memory Profile 就会被禁用，因为此时应用的内存，已经不“干净”了。
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/xcode_panel.png)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/xcode_panel.png?imageMogr2/format/webp/quality/80)
 
 那么，我们有办法可以减少 Shadow Memory 占用的空间吗？
 
@@ -98,7 +99,7 @@ AddressSanitizer(以下统一简称为 ASan )的实现，主要分为两大部�
 
 因此，对于给定的一个内存地址 Addr，如 0x10000000，那么从 0x10000000 到 0x10000008，8个字节的内存可访问状态，可以数字标识。而 k 所占用的大小仅为 1 字节(甚至不需要)。因此，对于0x10000000 到 0x10000008 的内存访问状态，编码后可以表示为：
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/best_mem_mapping.png)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/best_mem_mapping.png?imageMogr2/format/webp/quality/80)
 
 通过这种映射方式，Shadow Memory 占用的大小缩小到了 1/8。
 
@@ -117,12 +118,12 @@ AddressSanitizer(以下统一简称为 ASan )的实现，主要分为两大部�
 ### 2.2.5 内存溢出检测
 
 
-我们使用 malloc 申请的内存空间，可以被看作是一块连续的区域(VM)，为了减少内存碎片，它们的排列也是比较紧凑的：![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/mem_arrangement.png)
+我们使用 malloc 申请的内存空间，可以被看作是一块连续的区域(VM)，为了减少内存碎片，它们的排列也是比较紧凑的：![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/mem_arrangement.png?imageMogr2/format/webp/quality/80)
 
 
 这样有利于内存的利用率，但是对于内存溢出检测是不友好的。通常情况下，发生内存溢出时，如果指针落在了有效的内存区域，我们也就无法感知到。所以，ASan 会在这些连续的内存块之间，插入"redzone"来区分，redzone 对应的 Shadow Memory 会被标记为中毒(Poisoned)，代表该内存区域不可访问。redzone 一般大小为 32 字节，里面存储了与之对应内存区域大小，线程id，malloc 的调用堆栈等。
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/mem_redzone.png)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/mem_redzone.png?imageMogr2/format/webp/quality/80)
 
 这样，当我们访问到非法区域的时候，就能从 Shadow Memory 中获取当前内存区域是无法访问的，捕获到异常。
 
@@ -164,7 +165,7 @@ ASan 在运行时，根据上述规则，申请了 Shadow Memory，并 hook 了 
 
 然后再次运行，会看到下面的输出：
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/output.png)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/output.png?imageMogr2/format/webp/quality/80)
 
 看似比较冗长的输出，其实很好理解。
 

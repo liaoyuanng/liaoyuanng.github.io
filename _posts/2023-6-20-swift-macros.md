@@ -3,14 +3,14 @@ layout: post
 title: Deep Dive in Swift macro
 tags: 技术之内
 description: Swift macro, Swift 宏, Swift macro 原理, Swift macro 写法
-cover: 'https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/cover.jpg'
+cover: 'https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/cover.jpg/blog/blog'
 ---
 
 <!--more-->
 
 Swift 在 5.9 正式引入 Macro。和其他语言的 Macro 类似，Swift macro 可以在**编译期**展开。但相比其他语言的 macro，由 SwiftSyntax 支持的 Swift macro 更复杂，也更强大：**支持类型检查，获取展开后的上下文，错误抛出与诊断**等。
 
-![stringify](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled.png?imageMogr2/format/webp/quality/80)
+![stringify](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled.png/blog)
 
 想要使用 Swift macro，需要保证 Swift 版本在5.9以上，Xcode 版本在 15.0 以上。
 
@@ -20,7 +20,7 @@ Swift 在 5.9 正式引入 Macro。和其他语言的 Macro 类似，Swift macro
 
 在此之前，Swift 许多内置的功能工作原理和宏类似：在编译期自动展开。比如我们常用的 Property wrappers, Result builders 等。
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%201.jpg?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%201.jpg/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 尽管 Swift 已经内置了很多属性，但在实际项目中，仍有可能不满足我们的需求，此时，我们很难去扩展 Swift 语言本身，来支持自己的功能。引入 Swift macro 后，使其成为了可能。
 
@@ -39,7 +39,7 @@ Swift 在 5.9 正式引入 Macro。和其他语言的 Macro 类似，Swift macro
 
 无论是传入宏的参数，还是宏展开后代码，都必须是完整的，并且也会经过类型检查。宏也会自动验证输入的合法性，比如参数数量、类型是否匹配。同时，Swift 也提供了丰富的 API 来供开发者来验证宏的使用场景是否符合自己的预期（放在后面细说）。
 
-![macro_verify](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%202.png?imageMogr2/format/webp/quality/80)
+![macro_verify](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%202.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 ## 以可预测的方式嵌入
 
@@ -49,7 +49,7 @@ Swift 在 5.9 正式引入 Macro。和其他语言的 Macro 类似，Swift macro
 
 Apple 希望开发者在使用宏时，能明确的知道，宏展开后的代码是什么样，所以，Xcode 15.0 新增了宏展开的功能(`Expand Macro`)。帮助开发者了解正在使用的宏**只是代码的展开而不是魔法**。这一点，从最终的效果上看，类似于，在使用 OC 写宏时，Xcode 所提供的 Preprocess  中宏替换的能力，但它不是 Preprocess。
 
-![expand_macro](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%203.png?imageMogr2/format/webp/quality/80)
+![expand_macro](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%203.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 # #stringify, 第一个 Swift macro
 
@@ -59,19 +59,19 @@ Apple 希望开发者在使用宏时，能明确的知道，宏展开后的代�
 
 首先，我们打开 Xcode (15.0 以上)，选择文件-新建-Package
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%204.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%204.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 在新的窗口中，选择 Swift Macro
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%205.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%205.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 输入 Package 的名字（演示使用默认名字），点击 Create。这里你可以集成在已有工程；也可以单独创建，稍后在已有工程中添加。
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%206.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%206.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 创建完成后，我们就可以看到下面文件结构：
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%207.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%207.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 从名字不难看出，Sources 是我们的源码部分，Tests 是单元测试（由于宏的独立性，Apple 建议我们写单元测试）。Apple 默认给我们提供了一个完整的示例：`#stringify` ，它的作用是**将两个数字相加，并返回一个元组，包含计算的结果，以及一个字符串**。比如
 
@@ -89,11 +89,11 @@ print("The value \(result) was produced by the code \"\(code)\"")
 
 在 Sources 中，MyMacro 是宏的声明部分，使用 `macro` 关键字定义了宏对外的接口。
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%208.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%208.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 它里面包含了宏的参数类型，返回值类型，并通过模块名和类型名指定了该宏所在的位置，并返回其具体的实现。 `module` 和 `type` 必须要和宏实现的模块名和类型名匹配，因为它会作为命名空间。比如，示例中， `stringify` 在 `MyMacoMacros` 模块中的 `StringifyMacro` 实现。同时，使用了 `@freestanding(expression)` 装饰器来表示该宏是一个独立的表达式。`@freestanding` 也接受 `declaration` 参数来创建一个定义。在 Swift macro 中，将 `expression` 和 `declaration` 称作为 `Role`，Swift macro 提供了以下类型和 Role：
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%209.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%209.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 我们稍后会具体介绍每一种 Role 的作用和使用场景。回到示例，这里我们只需要关注 `expression`，它表示“创建一个表达式并且返回一个值”。在 `#stringify` 的场景中，非常适合。
 
@@ -101,11 +101,11 @@ print("The value \(result) was produced by the code \"\(code)\"")
 
 MyMacroMacros 就是宏的具体实现。我们看下，`#stringify` 是如何实现其功能的。
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2010.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2010.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 在 `MyMacroMacro` 中，有一个 `StringifyMacro` 的结构体，遵循并实现了 `ExpressionMacro` 协议。协议要求我们实现一个静态方法（注意，**由于它是一个类方法，所以并不会去创建该结构体实例**）
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2011.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2011.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 `expansion` 函数有两个入参和一个返回值：
 
@@ -126,7 +126,7 @@ MyMacroMacros 就是宏的具体实现。我们看下，`#stringify` 是如何�
 
 单元测试能帮我们来验证代码是否按照预期执行，也可以帮我们进行 Step-by-Step 的调试。Swift 提供了 `assertMacroExpansion`方法来测试宏是否按照预期的方式展开。我们需要提供宏展开前后的完整代码，通过字符串比较来判断是否正确。
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2012.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2012.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 这里，我们提供了宏展开前
 
@@ -154,7 +154,7 @@ let testMacros: [String: Macro.Type] = [
 
 放在数组中传入 `assertMacroExpansion`。验证通过后，我们就可以去使用宏了：
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2013.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2013.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 # Swift macro 背后的原理
 
@@ -171,7 +171,7 @@ public macro stringify<T>(_ value: T) -> (T, String) = #externalMacro(module: "M
 
 通过 `macro` 关键字，定义了一个宏，并通过 `externalMacro` 找到了它的实现。当 `Swift Compiler` 看到我们的宏，会把它提取出来，并发送给包含它实现的 `Compiler plugin`，plugin 在独立的安全沙盒中运行(沙盒环境禁止了网络访问和文件系统更改)。
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2014.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2014.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 进一步的，通过下面的方式，向 `Compiler plugin` 注册了宏。
 
@@ -190,17 +190,17 @@ struct MyMacroPlugin: CompilerPlugin {
 
 在 `Compiler plugin` 中，我们通过 `#externalMacro` 来建立了宏声明和实现的链接，它本身也是一个宏，上面我们已经提到了它的作用。我们来具体看下，`StringifyMacro` 是如何工作的。
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2015.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2015.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 在 `StringifyMacro` 中，我们被要求根据 Role 来实现不同的协议，Swift 提供了不同的 Role 来满足不同的使用场景
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2016.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2016.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 但他们都有一个共同的方法 `expansion` ，我们需要通过这个方法，来返回展开后宏的内容。
 
 在 Swift macro 中，无论是宏的定义，还是展开后的宏，都是通过特定的语法树结构来描述的，也就是 `AST` 。`SwiftSyntax` 提供了源码和语法树之间互转的能力。比如，对于 `#stringify(2 + 3)`，`SwiftSyntax` 会把它解析为一个语法树。相反的，会把我们在 `expansion` 方法中构造的语法树，转换为源码
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2017.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2017.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 通过这两步转换，便顺利把宏展开。
 
@@ -212,7 +212,7 @@ let node: ExprSyntax = "let sum = a + b"
 
 会被解析为
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2018.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2018.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 这也是上面 `expansion` 中，最后返回值是字符串的原因。
 
@@ -280,7 +280,7 @@ extension SFSymbolsViewController: DemonstrationProtocol {
 
 目前为止，Swift macro 一共提供了 7 种 Roles
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%209.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%209.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 我们现在详细的介绍下，每一种的作用和使用场景。
 
@@ -431,7 +431,7 @@ public static func expansion<Declaration, Context>(
 
 然后，我们遇到了第一个问题，如何去获取参数。方法内部，能供我们使用的，只有三个参数，我们先来看下 `node` 的定义：
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2019.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2019.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 在 AttributeSyntax 类型中，定义了一个枚举，包含了语法树的各个 node，很幸运的是，第一个参数便是 `argumentList` ，它关联了一个 `TupleExprElementListSyntax` 类型的值，我们尝试获取下
 
@@ -469,7 +469,7 @@ assertMacroExpansion(
 
 运行测试用例，并在相应的地方设置断点，使用 lldb 打印 `arguments`
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2020.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2020.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 从输出的语法树上，我们成功的找到了我们需要的参数。所以，我们只需要按照层级去逐层解析，就可以获取入参，完整的代码如下：
 
@@ -503,7 +503,7 @@ return [protocolImpl]
 
 我们再来运行下测试用例
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2021.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2021.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 > Note 
 > 这里苹果又有一个 [bug](https://github.com/apple/swift-syntax/issues/1786)，在宏展开的时候，会莫名在字符串前面添加一个空格，导致测试用例无法通过，我们这里手动干预下：在期望的输出“ subtitle test”前面加一个空格
@@ -526,7 +526,7 @@ class TestClass {
 
 在宏的名字上，点击右键-“Expand Macro”
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2022.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2022.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 Bravo!!!
 
@@ -554,7 +554,7 @@ enum CustomError: Error, CustomStringConvertible {
 
 再回到 `MemberMacro` 中的实现，我们可以通过 `declaration` 判断当前宏是否被附加在了类上。`declaration` 也是语法树结构体，它的结构如下：
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2023.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2023.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 可以看到，上面使用 `classkeyword` 来表示当前类型是一个类(Class)，以及它的继承关系。
 
@@ -568,7 +568,7 @@ guard let classDecl = declaration.as(ClassDeclSyntax.self) else {
 
 再次运行，Xcode 成功抛出了我们的错误。
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2024.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2024.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 等等，还没完。除了提供错误原因外，我们还可以再进一步，提供一个快速的修复方法：将错误类型转换为类类型，就像我们使用其他 Swift 代码一样，更加友好。
 
@@ -650,11 +650,11 @@ context.diagnose(diag)
 
 在这里，我们记录了错误的 typeNode ，并构建了一个正确的 classNode 来替换。最后，让我们看下使用效果:
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2025.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2025.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 可以看到，这次我们不仅提供了错误信息，还在第二行给出了修复方案，当我们点击后面的 Fix 按钮，TestClass 的类型就从 struct 变成了 class
 
-![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2026.png?imageMogr2/format/webp/quality/80)
+![](https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/Untitled%2026.png/blog/blog?imageMogr2/format/webp/quality/80)/blog/blog
 
 无论是错误信息，还是修复方案，都是我们自己提供的。看到这里，有没有一种创造语言的成就感？
 
