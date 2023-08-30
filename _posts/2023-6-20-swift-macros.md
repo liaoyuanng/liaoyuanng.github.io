@@ -4,6 +4,7 @@ title: Deep Dive in Swift macro
 tags: 技术之内
 description: Swift macro, Swift 宏, Swift macro 原理, Swift macro 写法
 cover: 'https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/cover.jpg?imageMogr2/format/webp/quality/80'
+last_modified_at: 2023-08-30
 ---
 
 <!--more-->
@@ -158,7 +159,7 @@ let testMacros: [String: Macro.Type] = [
 
 # Swift macro 背后的原理
 
-在上面，我们已经接触到了第一个 Swift macro，让我们继续，来看下 Swift 是如何把 `#stringify(a + b)` 展开成 `a+b, (a + b)` 。
+在上面，我们已经接触到了第一个 Swift macro。让我们继续，来看下 Swift 是如何把 `#stringify(a + b)` 展开成 `a+b, (a + b)` 。
 
 ## Macro 的展开
 
@@ -218,7 +219,7 @@ let node: ExprSyntax = "let sum = a + b"
 
 ## 小结
 
-Swift macro 的实现原理并不难。通过 `SwiftSyntax` 将源码和语法树之间互相转换，最终将代码按照预定的方式展开。加上 Swift 进一步的抽象，提供了 Type，Roles等概念，让开发者去实现起来更简单。从定义和使用上来看，和普通的一个函数没有太大的差别。
+至此，Swift macro 的原理已经介绍完了，可以发现其原理并不难。通过 `SwiftSyntax` 将源码和语法树之间互相转换，最终将代码按照预定的方式展开。加上 Swift 进一步的抽象，提供了 Type，Roles等概念，让开发者去实现起来更简单。从定义和使用上来看，和普通的一个函数没有太大的差别。
 
 # 实现自己的 Swift macro
 
