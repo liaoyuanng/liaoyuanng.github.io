@@ -33,6 +33,7 @@ jobs:
         with:
           ruby-version: '3.1'
       - run: bundle install
+      - run: bundle show
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Build with Jekyll
