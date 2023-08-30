@@ -2,7 +2,7 @@
 layout: post
 title: Deep Dive in Swift macro
 tags: 技术之内
-description: Swift macro, Swift 宏, Swift macro 原理, Swift macro 写法
+description: "Swift 5.9 带来了全新的 Swift macro，本文主要介绍 Swift macro 使用，以及实现原理"
 cover: 'https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/swift_macros/cover.jpg?imageMogr2/format/webp/quality/80'
 last_modified_at: 2023-08-30
 ---
