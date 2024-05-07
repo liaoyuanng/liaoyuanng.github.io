@@ -1,8 +1,8 @@
 ---
 layout: post
-title: Deep dive into Address Sanitizer
+title: 深入理解 Address Sanitizer
 date: 2021-12-27
-description: "Address Sanitizer, ASan, Address Sanitizer 使用, Address Sanitizer 原理"
+description: "Address Sanitizer, ASan, iOS Address Sanitizer 使用, Address Sanitizer 原理, iOS ASan 日志"
 tags: "技术之内 iOS"
 cover: 'https://leo-1253441258.cos.ap-shanghai.myqcloud.com/blog/ThreadAddress/asan_cover.webp'
 ---
