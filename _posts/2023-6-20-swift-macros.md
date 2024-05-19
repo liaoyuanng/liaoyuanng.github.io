@@ -309,10 +309,8 @@ extension SFSymbolsViewController: DemonstrationProtocol {
     
     为**已有类型或者扩展**添加新的声明。比如新的属性，新的方法等。
     
-- attached(conformance)
-    
-    为**已有类型或者扩展**添加协议
-    
+- ~~attached(conformance)~~
+    ~~为**已有类型或者扩展**添加协议~~
 
 了解完了 Swift 提供的 Roles，再结合我们的需求，
 
@@ -321,13 +319,19 @@ extension SFSymbolsViewController: DemonstrationProtocol {
 
 这么看来，我们需要同时使用两个 Role，幸运的是，Swift 支持同时使用多个 Role(这里有一个特例，同一个宏不支持同时使用两个 freestanding )，并且会自动的选择展开。我们也不需要关心的哪个宏先被展开，因为他们彼此都是互相独立的，也不需要关心他们的展开顺序。
 
+> Update: Swift 在 [SE0420](https://github.com/apple/swift-evolution/blob/main/proposals/0402-extension-macros.md) 中删除了对 `conformance` 的支持，使用 `extension` 来代替。extension 的引入背景，正如我们在上面遇到的问题一样，conformace 的使用场景太局限，只能用来添加协议，如果需要添加方法或者属性，需要结合 `member` 来使用。而 `extension` 可以在添加协议的同时，支持添加新的方法或者属性，即 `extension = conformance + member`
+
 ### 定义
 
 根据上面，我们可以确定宏的定义如下：
 
 ```swift
-@attached(conformance)
-@attached(member, names: named(subjectTitle), named(subtitle))
+public protocol DemonstrationProtocol {
+    func subjectTitle() -> String
+    func subtitle() -> String
+}
+
+@attached(extension,  conformances: DemonstrationProtocol, names: named(subjectTitle), named(subtitle))
 public macro demonstration(subjectTitle: String, subtitle: String) = #externalMacro(module: "WWDC23HelperMacros", type: "DemostrationMacro")
 ```
 
@@ -344,24 +348,28 @@ Declaration name 'xxx' is not covered by macro 'macro name'
 ```swift
 public struct DemostrationMacro {}
 ```
-
-由于使用了两个 Role，我们需要分别实现两个协议: `ConformanceMacro` 和 `MemberMacro` ，他们都要求我们实现 `expansion` 方法。不过不需要担心，它们只是同名，参数不一样，所以方法签名不同，可以安全的实现各自的方法。你可以把他们写在同一个地方，也可以通过 `extension` 把他们从代码上独立起来。
-
-```swift
-extension DemostrationMacro: ConformanceMacro {}
-
-extension DemostrationMacro: MemberMacro {}
-```
-
-我们首先来看， `ConformanceMacro` 中 `expansion` 的实现
+在此需要实现`ExtensionMacro`的协议：
 
 ```swift
-public static func expansion<Declaration, Context>(
-        of node: AttributeSyntax,
-        providingConformancesOf declaration: Declaration,
-        in context: Context
-    ) throws -> [(TypeSyntax, GenericWhereClauseSyntax?)] where Declaration : DeclGroupSyntax, Context : MacroExpansionContext {
-        return [("DemonstrationProtocol", nil)]                                                           
+public static func expansion(of node: SwiftSyntax.AttributeSyntax, attachedTo declaration: some SwiftSyntax.DeclGroupSyntax, providingExtensionsOf type: some SwiftSyntax.TypeSyntaxProtocol, conformingTo protocols: [SwiftSyntax.TypeSyntax], in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> [SwiftSyntax.ExtensionDeclSyntax] {
+        
+        guard case .argumentList(let arguments) = node.arguments else {
+            return []
+        }
+        
+        let extensionDecl = try ExtensionDeclSyntax("extension \(type.trimmed): DemonstrationProtocol") {
+            for argi in arguments {
+                let decl: DeclSyntax =
+                """
+                func \(argi.label!)() -> String {
+                    return \(argi.expression)
+                }
+                """
+                decl
+            }
+        }
+        
+        return [extensionDecl]
     }
 ```
 
@@ -678,9 +686,7 @@ guard let classDecl = declaration.as(ClassDeclSyntax.self),
 ```
 
 > Discussion
-
-> 由于 SwiftSyntax 只是负责语法解析，并不能知道类型的整个继承关系（[Reply](https://forums.swift.org/t/how-to-retrieve-the-inheritance-hierarchy-of-a-type/65649)）。所以，这里的方法有点 trick，只做演示用。
-> 
+由于 SwiftSyntax 只是负责语法解析，并不能知道类型的整个继承关系（[Reply](https://forums.swift.org/t/how-to-retrieve-the-inheritance-hierarchy-of-a-type/65649)）。所以，这里的方法有点 trick，只做演示用。
 
 # 总结
 
